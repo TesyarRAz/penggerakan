@@ -16,37 +16,39 @@ import (
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
+	gofiber "github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	app       *fiber.App
-	db        *sqlx.DB
-	dotenvcfg util.DotEnvConfig
-	log       *logrus.Logger
-	validate  *validator.Validate
+	fiber    *gofiber.App
+	db       *sqlx.DB
+	env      util.DotEnvConfig
+	log      *logrus.Logger
+	validate *validator.Validate
 
 	m *migration.Migration
 )
 
 func init() {
 	ctx := context.Background()
-	dotenvcfg = config.NewDotEnv("../.env.test")
-	log = config.NewLogger(dotenvcfg)
+	env = config.NewDotEnv("../.env.test")
+	log = config.NewLogger(env)
 	validate = config.NewValidator()
-	app = config.NewFiber(dotenvcfg)
-	db = config.NewDatabase(dotenvcfg, log)
+	fiber = config.NewFiber(env)
+	db = config.NewDatabase(env, log)
 
-	monolith_config.Bootstrap(&monolith_config.BootstrapConfig{
-		App:      app,
+	app := monolith_config.NewApp(&config.BootstrapConfig{
+		Fiber:    fiber,
 		DB:       db,
-		Config:   dotenvcfg,
+		Env:      env,
 		Log:      log,
 		Validate: validate,
 	})
+
+	config.Bootstrap(app)
 
 	var err error
 	m, err = monolith_migration.New(&monolith_migration.MigrationConfig{
@@ -79,7 +81,7 @@ func GetAdmin(t *testing.T) (*model.LoginUserRequest, *http.Response, *model.Web
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
 
-	response, err := app.Test(request)
+	response, err := fiber.Test(request)
 	assert.Nil(t, err)
 
 	bytes, err := io.ReadAll(response.Body)

@@ -38,6 +38,11 @@ func NewUserUseCase(db *sqlx.DB, dotenvcfg util.DotEnvConfig, logger *logrus.Log
 }
 
 func (c *UserUseCase) Verify(ctx context.Context, request *model.VerifyUserRequest) (*model.Auth, error) {
+	if err := c.Validate.Struct(request); err != nil {
+		c.Log.Warnf("Failed to validate request : %+v", err)
+		return nil, err
+	}
+
 	token, err := jwt.Parse(request.Token, func(token *jwt.Token) (interface{}, error) {
 		return []byte(util.StringOrDefault(c.Config["JWT_SECRET_KEY"], c.Config["APP_ID"])), nil
 	}, jwt.WithExpirationRequired(), jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))

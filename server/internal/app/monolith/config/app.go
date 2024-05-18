@@ -3,35 +3,34 @@ package monolith_config
 import (
 	course_config "github.com/TesyarRAz/penggerak/internal/app/course/config"
 	user_config "github.com/TesyarRAz/penggerak/internal/app/user/config"
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
-	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
-	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
+	"github.com/TesyarRAz/penggerak/internal/pkg/config"
 )
 
-type BootstrapConfig struct {
-	App      *fiber.App
-	DB       *sqlx.DB
-	Log      *logrus.Logger
-	Validate *validator.Validate
-	Config   util.DotEnvConfig
+type App struct {
+	userModule   *user_config.App
+	courseModule *course_config.App
 }
 
-func Bootstrap(config *BootstrapConfig) {
-	user_config.Bootstrap(&user_config.BootstrapConfig{
-		App:      config.App,
-		DB:       config.DB,
-		Log:      config.Log,
-		Validate: config.Validate,
-		Config:   config.Config,
-	})
+var _ config.App = &App{}
 
-	course_config.Bootstrap(&course_config.BootstrapConfig{
-		App:      config.App,
-		DB:       config.DB,
-		Log:      config.Log,
-		Validate: config.Validate,
-		Config:   config.Config,
-	})
+func NewApp(cfg *config.BootstrapConfig) *App {
+	userModule := user_config.NewApp(cfg)
+	courseModule := course_config.NewApp(cfg)
+
+	return &App{
+		userModule:   userModule,
+		courseModule: courseModule,
+	}
+}
+
+func (a *App) Provider() config.Provider {
+	return config.CombineProvider(
+		a.userModule.Provider(),
+		a.courseModule.Provider(),
+	)
+}
+
+func (a *App) Service(providers config.Provider) {
+	a.userModule.Service(providers)
+	a.courseModule.Service(providers)
 }

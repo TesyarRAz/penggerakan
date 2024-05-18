@@ -28,7 +28,7 @@ func TestMe(t *testing.T) {
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("Authorization", "Bearer "+token)
 
-	response, err := app.Test(request)
+	response, err := fiber.Test(request)
 	assert.Nil(t, err)
 
 	bytes, err := io.ReadAll(response.Body)

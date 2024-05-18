@@ -6,7 +6,7 @@ import (
 )
 
 type RouteConfig struct {
-	App *fiber.App
+	Fiber *fiber.App
 
 	UserController *user_http.UserController
 
@@ -19,11 +19,11 @@ func (c *RouteConfig) Setup() {
 }
 
 func (c *RouteConfig) SetupGuestRoute() {
-	c.App.Post("/auth/login", c.UserController.Login)
+	c.Fiber.Post("/auth/login", c.UserController.Login)
 }
 
 func (c *RouteConfig) SetupAuthRoute() {
-	c.App.Delete("/auth/logout", c.AuthMiddleware, c.UserController.Logout)
+	c.Fiber.Delete("/auth/logout", c.AuthMiddleware, c.UserController.Logout)
 
-	c.App.Get("/auth/me", c.AuthMiddleware, c.UserController.Me)
+	c.Fiber.Get("/auth/me", c.AuthMiddleware, c.UserController.Me)
 }

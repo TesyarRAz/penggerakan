@@ -6,11 +6,12 @@ import (
 )
 
 type RouteConfig struct {
-	App            *fiber.App
+	Fiber          *fiber.App
+	AuthMiddleware fiber.Handler
 	UserController *course_http.CourseController
 }
 
 func (c *RouteConfig) Setup() {
-	c.App.Get("/courses", c.UserController.List)
-	c.App.Post("/courses", c.UserController.Create)
+	c.Fiber.Get("/courses", c.AuthMiddleware, c.UserController.List)
+	c.Fiber.Post("/courses", c.AuthMiddleware, c.UserController.Create)
 }

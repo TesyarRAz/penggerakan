@@ -8,22 +8,24 @@ import (
 )
 
 func main() {
-	dotenv := config.NewDotEnv()
-	log := config.NewLogger(dotenv)
-	app := config.NewFiber(dotenv)
+	env := config.NewDotEnv()
+	log := config.NewLogger(env)
+	fiber := config.NewFiber(env)
 	validate := config.NewValidator()
-	db := config.NewDatabase(dotenv, log)
+	db := config.NewDatabase(env, log)
 
-	monolith_config.Bootstrap(&monolith_config.BootstrapConfig{
-		App:      app,
+	app := monolith_config.NewApp(&config.BootstrapConfig{
+		Fiber:    fiber,
 		DB:       db,
 		Log:      log,
 		Validate: validate,
-		Config:   dotenv,
+		Env:      env,
 	})
 
-	webPort := dotenv["WEB_PORT"]
-	if err := app.Listen(fmt.Sprint(":", webPort)); err != nil {
+	config.Bootstrap(app)
+
+	webPort := env["WEB_PORT"]
+	if err := fiber.Listen(fmt.Sprint(":", webPort)); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

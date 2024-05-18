@@ -2,33 +2,48 @@ package course_config
 
 import (
 	course_http "github.com/TesyarRAz/penggerak/internal/app/course/delivery/http"
+	course_middleware "github.com/TesyarRAz/penggerak/internal/app/course/delivery/http/middleware"
 	course_route "github.com/TesyarRAz/penggerak/internal/app/course/delivery/http/route"
 	course_repository "github.com/TesyarRAz/penggerak/internal/app/course/repository"
 	course_usecase "github.com/TesyarRAz/penggerak/internal/app/course/usecase"
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
-	"github.com/go-playground/validator/v10"
-	"github.com/gofiber/fiber/v2"
-	"github.com/jmoiron/sqlx"
-	"github.com/sirupsen/logrus"
+	"github.com/TesyarRAz/penggerak/internal/pkg/config"
+	"github.com/TesyarRAz/penggerak/internal/pkg/service"
 )
 
-type BootstrapConfig struct {
-	App      *fiber.App
-	DB       *sqlx.DB
-	Log      *logrus.Logger
-	Validate *validator.Validate
-	Config   util.DotEnvConfig
+type App struct {
+	cfg              *config.BootstrapConfig
+	courseRepository *course_repository.CourseRepository
+	courseUseCase    *course_usecase.CourseUseCase
 }
 
-func Bootstrap(config *BootstrapConfig) {
-	courseRepository := course_repository.NewCourseRepository(config.Log, config.DB)
+var _ config.App = &App{}
 
-	userUseCase := course_usecase.NewCourseUseCase(config.DB, config.Config, config.Log, config.Validate, courseRepository)
+func NewApp(cfg *config.BootstrapConfig) *App {
+	courseRepository := course_repository.NewCourseRepository(cfg.Log, cfg.DB)
 
-	userController := course_http.NewCourseController(userUseCase, config.Log)
+	courseUseCase := course_usecase.NewCourseUseCase(cfg.DB, cfg.Env, cfg.Log, cfg.Validate, courseRepository)
+
+	return &App{
+		cfg:              cfg,
+		courseRepository: courseRepository,
+		courseUseCase:    courseUseCase,
+	}
+}
+
+func (a *App) Provider() config.Provider {
+	return nil
+}
+
+func (a *App) Service(providers config.Provider) {
+	userController := course_http.NewCourseController(a.courseUseCase, a.cfg.Log)
+
+	authService := providers["auth"].(service.AuthService)
+
+	authMiddleware := course_middleware.NewAuth(&authService)
 
 	routeConfig := course_route.RouteConfig{
-		App:            config.App,
+		Fiber:          a.cfg.Fiber,
+		AuthMiddleware: authMiddleware,
 		UserController: userController,
 	}
 	routeConfig.Setup()
