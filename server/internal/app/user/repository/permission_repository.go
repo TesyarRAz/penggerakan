@@ -6,6 +6,9 @@ import (
 	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
+
+	lo "github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 )
 
 type PermissionRepository struct {
@@ -86,32 +89,106 @@ func (*PermissionRepository) DetachPermissionFromUser(db *sqlx.Tx, permissionID,
 	return
 }
 
-func (*PermissionRepository) PermissionsByRole(db *sqlx.Tx, roleID string) (permissions []user_entity.Permission, err error) {
-	err = db.Select(&permissions, "SELECT p.* FROM permissions p JOIN role_permission rp ON p.id = rp.permission_id WHERE rp.role_id = $1", roleID)
+func (*PermissionRepository) PermissionsByRoles(db *sqlx.Tx, roles ...*user_entity.Role) error {
+	query, args, err := sqlx.In("SELECT rp.*, p.name as permission_name, r.name as role_name FROM role_permission rp JOIN permissions p ON p.id = rp.permission_id JOIN roles r ON r.id = rp.role_id WHERE rp.role_id IN (?)", lop.Map(roles, func(role *user_entity.Role, _ int) string {
+		return role.ID
+	}))
 
-	return
+	if err != nil {
+		return err
+	}
+
+	query = db.Rebind(query)
+
+	var rps []*user_entity.RolePermission
+	if err := db.Select(&rps, query, args...); err != nil {
+		return err
+	}
+
+	for _, role := range roles {
+		frps := lo.Filter(rps, func(rp *user_entity.RolePermission, _ int) bool {
+			return rp.RoleID == role.ID
+		})
+
+		role.Permissions = lo.Map(frps, func(rp *user_entity.RolePermission, _ int) *user_entity.Permission {
+			return &user_entity.Permission{
+				ID:   rp.PermissionID,
+				Name: rp.PermissionName,
+			}
+		})
+	}
+
+	return nil
 }
 
-func (*PermissionRepository) PermissionsByUser(db *sqlx.Tx, userID string) (permissions []user_entity.Permission, err error) {
-	err = db.Select(&permissions, "SELECT p.* FROM permissions p JOIN user_permission up ON p.id = up.permission_id WHERE up.user_id = $1", userID)
+func (*PermissionRepository) PermissionsByUsers(db *sqlx.Tx, users ...*user_entity.User) error {
+	query, args, err := sqlx.In("SELECT up.*, p.name as permission_name FROM user_permission up JOIN permissions p ON p.id = up.permission_id WHERE up.user_id IN (?)", lop.Map(users, func(user *user_entity.User, _ int) string {
+		return user.ID
+	}))
 
-	return
+	if err != nil {
+		return err
+	}
+
+	query = db.Rebind(query)
+
+	var ups []*user_entity.UserPermission
+	if err := db.Select(&ups, query, args...); err != nil {
+		return err
+	}
+
+	for _, user := range users {
+		fups := lo.Filter(ups, func(up *user_entity.UserPermission, _ int) bool {
+			return up.UserID == user.ID
+		})
+
+		user.Permissions = lo.Map(fups, func(up *user_entity.UserPermission, _ int) *user_entity.Permission {
+			return &user_entity.Permission{
+				ID:   up.PermissionID,
+				Name: up.PermissionName,
+			}
+		})
+	}
+
+	return nil
 }
 
-func (*PermissionRepository) RolesByUser(db *sqlx.Tx, userID string) (roles []user_entity.Role, err error) {
-	err = db.Select(&roles, "SELECT r.* FROM roles r JOIN user_role ur ON r.id = ur.role_id WHERE ur.user_id = $1", userID)
+func (*PermissionRepository) RolesByUser(db *sqlx.Tx, users ...*user_entity.User) error {
+	query, args, err := sqlx.In("SELECT ur.*, p.name as role_name FROM user_role ur JOIN roles p ON p.id = ur.role_id WHERE ur.user_id IN (?)", lop.Map(users, func(user *user_entity.User, _ int) string {
+		return user.ID
+	}))
 
-	return
+	if err != nil {
+		return err
+	}
+
+	query = db.Rebind(query)
+
+	var urs []*user_entity.UserRole
+	if err := db.Select(&urs, query, args...); err != nil {
+		return err
+	}
+
+	for _, user := range users {
+		furs := lo.Filter(urs, func(ur *user_entity.UserRole, _ int) bool {
+			return ur.UserID == user.ID
+		})
+
+		user.Roles = lo.Map(furs, func(ur *user_entity.UserRole, _ int) *user_entity.Role {
+			return &user_entity.Role{
+				ID:   ur.RoleID,
+				Name: ur.RoleName,
+			}
+		})
+	}
+
+	return nil
 }
 
-func (*PermissionRepository) UsersByRole(db *sqlx.Tx, roleID string) (users []user_entity.User, err error) {
-	err = db.Select(&users, "SELECT u.* FROM users u JOIN user_role ur ON u.id = ur.user_id WHERE ur.role_id = $1", roleID)
+// func (*PermissionRepository) UsersByRole(db *sqlx.Tx, users *[]*user_entity.User, roleID string) error {
+// 	return db.Select(users, "SELECT u.* FROM users u JOIN user_role ur ON u.id = ur.user_id WHERE ur.role_id = $1", roleID)
+// }
 
-	return
-}
-
-func (*PermissionRepository) RolesByPermission(db *sqlx.Tx, permissionID string) (roles []user_entity.Role, err error) {
-	err = db.Select(&roles, "SELECT r.* FROM roles r JOIN role_permission rp ON r.id = rp.role_id WHERE rp.permission_id = $1", permissionID)
-
-	return
-}
+// func (*PermissionRepository) RolesByPermission(db *sqlx.Tx, roles *[]*user_entity.Role, permissionID string) error {
+// 	return db.Select(roles, "SELECT r.* FROM roles r JOIN role_permission rp ON r.id = rp.role_id WHERE rp.permission_id = $1", permissionID)
+// }

@@ -1,6 +1,7 @@
 package user_http
 
 import (
+	user_middleware "github.com/TesyarRAz/penggerak/internal/app/user/delivery/http/middleware"
 	user_usecase "github.com/TesyarRAz/penggerak/internal/app/user/usecase"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/gofiber/fiber/v2"
@@ -28,7 +29,6 @@ func (c *UserController) Login(ctx *fiber.Ctx) error {
 
 	response, err := c.UseCase.Login(ctx.UserContext(), &request)
 	if err != nil {
-		c.Log.Warnf("Failed to login user : %+v", err)
 		return err
 	}
 
@@ -36,15 +36,15 @@ func (c *UserController) Login(ctx *fiber.Ctx) error {
 }
 
 func (c *UserController) Me(ctx *fiber.Ctx) error {
-	auth := ctx.Locals("auth").(*model.Auth)
+	auth := user_middleware.GetUser(ctx)
 
 	request := &model.GetUserRequest{
-		ID: auth.ID,
+		ID:         auth.ID,
+		IsDetailed: true,
 	}
 
-	response, err := c.UseCase.User(ctx.UserContext(), request)
+	response, err := c.UseCase.GetUser(ctx.UserContext(), request)
 	if err != nil {
-		c.Log.Warnf("Failed to get user : %+v", err)
 		return err
 	}
 

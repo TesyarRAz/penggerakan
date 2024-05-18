@@ -19,12 +19,11 @@ func (c *RouteConfig) Setup() {
 }
 
 func (c *RouteConfig) SetupGuestRoute() {
-	c.App.Post("/v1/auth/login", c.UserController.Login)
+	c.App.Post("/auth/login", c.UserController.Login)
 }
 
 func (c *RouteConfig) SetupAuthRoute() {
-	c.App.Use(c.AuthMiddleware)
-	c.App.Delete("/v1/auth/logout", c.UserController.Logout)
+	c.App.Delete("/auth/logout", c.AuthMiddleware, c.UserController.Logout)
 
-	c.App.Get("/v1/auth/me", c.UserController.Me)
+	c.App.Get("/auth/me", c.AuthMiddleware, c.UserController.Me)
 }

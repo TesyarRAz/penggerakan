@@ -3,6 +3,7 @@ package user_repository
 import (
 	user_entity "github.com/TesyarRAz/penggerak/internal/app/user/entity"
 	"github.com/TesyarRAz/penggerak/internal/pkg/entity"
+	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/TesyarRAz/penggerak/internal/pkg/repository"
 	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/jmoiron/sqlx"
@@ -23,6 +24,10 @@ func NewUserRepository(log *logrus.Logger, db *sqlx.DB) *UserRepository {
 		Log: log,
 		DB:  db,
 	}
+}
+
+func (r *UserRepository) List(db *sqlx.Tx, entities *[]*user_entity.User, filter *model.PageRequest) (*model.PageMetadata, error) {
+	return nil, nil
 }
 
 func (r *UserRepository) Create(db *sqlx.Tx, entity *user_entity.User) (err error) {

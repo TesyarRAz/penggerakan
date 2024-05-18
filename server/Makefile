@@ -10,10 +10,10 @@ serve:
 	@echo "Running the server"
 	@air --build.cmd "go build -o dist/bin/monolith/monolith.exe cmd/monolith/main.go" --build.bin "dist\\bin\\monolith\\monolith.exe"
 
-migration-user:
+migration:
 	@echo "Running migration for user"
-	@go run cmd/migration_user/main.go
+	@go run cmd/migration/main.go --seed
 
 testing:
 	@echo "Running tests"
-	@go test -v ./test/user
+	@go test -v ./test

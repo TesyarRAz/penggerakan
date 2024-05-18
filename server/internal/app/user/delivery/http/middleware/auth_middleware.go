@@ -15,8 +15,6 @@ func NewAuth(userUserCase *user_usecase.UserUseCase) fiber.Handler {
 			return fiber.ErrUnauthorized
 		}
 
-		// Parse the token
-		// Example: "Bearer <token>"
 		splitToken := strings.Split(token, " ")
 		if len(splitToken) != 2 || splitToken[0] != "Bearer" {
 			return fiber.ErrUnauthorized
@@ -24,9 +22,7 @@ func NewAuth(userUserCase *user_usecase.UserUseCase) fiber.Handler {
 
 		parsedToken := splitToken[1]
 
-		// Continue with the rest of the code
 		request := &model.VerifyUserRequest{Token: parsedToken}
-		userUserCase.Log.Debugf("Authorization : %s", request.Token)
 
 		auth, err := userUserCase.Verify(ctx.UserContext(), request)
 		if err != nil {
@@ -34,7 +30,6 @@ func NewAuth(userUserCase *user_usecase.UserUseCase) fiber.Handler {
 			return fiber.ErrUnauthorized
 		}
 
-		userUserCase.Log.Debugf("User : %+v", auth.ID)
 		ctx.Locals("auth", auth)
 		return ctx.Next()
 	}

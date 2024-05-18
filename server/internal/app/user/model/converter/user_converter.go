@@ -2,12 +2,13 @@ package user_converter
 
 import (
 	user_entity "github.com/TesyarRAz/penggerak/internal/app/user/entity"
-	user_model "github.com/TesyarRAz/penggerak/internal/app/user/model"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
+
+	lop "github.com/samber/lo/parallel"
 )
 
-func UserToResponse(user *user_entity.User, isMe bool) *model.UserResponse {
-	if !isMe {
+func UserToResponse(user *user_entity.User, isDetailed bool) *model.UserResponse {
+	if !isDetailed {
 		return &model.UserResponse{
 			Email: user.Email,
 			Name:  user.Name,
@@ -19,14 +20,25 @@ func UserToResponse(user *user_entity.User, isMe bool) *model.UserResponse {
 		Name:      user.Name,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
+		RoleResponses: lop.Map(user.Roles, func(role *user_entity.Role, _ int) *model.RoleResponse {
+			return RoleToResponse(role)
+		}),
 	}
 }
 
-func UserToEvent(user *user_entity.User) *user_model.UserEvent {
-	return &user_model.UserEvent{
-		ID:        user.ID,
-		Name:      user.Name,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+func RoleToResponse(role *user_entity.Role) *model.RoleResponse {
+	return &model.RoleResponse{
+		ID:   role.ID,
+		Name: role.Name,
+		PermissionResponses: lop.Map(role.Permissions, func(permission *user_entity.Permission, _ int) *model.PermissionResponse {
+			return PermissionToResponse(permission)
+		}),
+	}
+}
+
+func PermissionToResponse(permission *user_entity.Permission) *model.PermissionResponse {
+	return &model.PermissionResponse{
+		ID:   permission.ID,
+		Name: permission.Name,
 	}
 }

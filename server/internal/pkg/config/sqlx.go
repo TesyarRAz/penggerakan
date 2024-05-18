@@ -2,12 +2,13 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/TesyarRAz/penggerak/internal/pkg/util"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,7 +19,7 @@ func NewDatabase(config util.DotEnvConfig, log *logrus.Logger) *sqlx.DB {
 
 	dsn := GenerateDSNFromConfig(config)
 
-	db, err := sqlx.Connect("postgres", dsn)
+	db, err := sqlx.Connect("pgx", dsn)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
@@ -31,7 +32,6 @@ func NewDatabase(config util.DotEnvConfig, log *logrus.Logger) *sqlx.DB {
 }
 
 func GenerateDSNFromConfig(config util.DotEnvConfig) string {
-
 	username := config["DB_USERNAME"]
 	password := config["DB_PASSWORD"]
 	host := config["DB_HOST"]
@@ -39,5 +39,8 @@ func GenerateDSNFromConfig(config util.DotEnvConfig) string {
 	database := config["DB_NAME"]
 	sslMode := config["DB_SSLMODE"]
 
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", username, password, host, port, database, sslMode)
+	q := url.Values{}
+	q.Set("sslmode", sslMode)
+
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?%s", username, password, host, port, database, q.Encode())
 }

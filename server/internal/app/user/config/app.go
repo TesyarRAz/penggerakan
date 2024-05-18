@@ -23,8 +23,9 @@ type BootstrapConfig struct {
 
 func Bootstrap(config *BootstrapConfig) {
 	userRepository := user_repository.NewUserRepository(config.Log, config.DB)
+	permissionRepository := user_repository.NewPermissionRepository(config.Log, config.DB)
 
-	userUseCase := user_usecase.NewUserUseCase(config.DB, config.Config, config.Log, config.Validate, userRepository)
+	userUseCase := user_usecase.NewUserUseCase(config.DB, config.Config, config.Log, config.Validate, userRepository, permissionRepository)
 
 	userController := user_http.NewUserController(userUseCase, config.Log)
 

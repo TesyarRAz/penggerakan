@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 
-	user_migration "github.com/TesyarRAz/penggerak/internal/app/user/db"
+	monolith_migration "github.com/TesyarRAz/penggerak/internal/app/monolith/db"
 	"github.com/TesyarRAz/penggerak/internal/pkg/config"
 	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/jmoiron/sqlx"
@@ -24,22 +24,25 @@ func main() {
 	dotenv = config.NewDotEnv()
 	logger = config.NewLogger(dotenv)
 	db = config.NewDatabase(dotenv, logger)
+	defer db.Close()
 
 	flag.Parse()
 
-	migration, err := user_migration.New(&user_migration.MigrationConfig{
-		Dsn:       config.GenerateDSNFromConfig(dotenv),
-		SourceURL: "file://internal/app/user/db/migration",
-		Logger:    logger,
-		DB:        db,
+	migration, err := monolith_migration.New(&monolith_migration.MigrationConfig{
+		UserSourceURL:   "file://internal/app/user/db/migrations",
+		CourseSourceURL: "file://internal/app/course/db/migrations",
+		Logger:          logger,
+		DB:              db,
 	})
-
 	if err != nil {
 		logger.Fatalf("Failed to create migration: %v", err)
 		return
 	}
 
-	migration.Up(ctx, *withSeed)
+	if err := (*migration).Up(ctx, *withSeed); err != nil {
+		logger.Fatalf("Failed to migrate user: %v", err)
+		return
+	}
 
 	logger.Info("Migration done")
 }

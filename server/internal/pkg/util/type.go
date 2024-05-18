@@ -10,3 +10,11 @@ func (d DotEnvConfig) StringOrDefaultKey(key string, defKey string) string {
 
 	return d[key]
 }
+
+func (d DotEnvConfig) Modify(data map[string]string) DotEnvConfig {
+	for k, v := range data {
+		d[k] = v
+	}
+
+	return d
+}

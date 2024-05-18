@@ -1,11 +1,27 @@
 package model
 
+import "time"
+
 type UserResponse struct {
-	Email     string `json:"email"`
-	Name      string `json:"name"`
-	Token     string `json:"token"`
-	CreatedAt int64  `json:"created_at"`
-	UpdatedAt int64  `json:"updated_at"`
+	Email     string     `json:"email"`
+	Name      string     `json:"name"`
+	CreatedAt time.Time  `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+
+	RoleResponses       []*RoleResponse       `json:"roles,omitempty"`
+	PermissionResponses []*PermissionResponse `json:"permissions,omitempty"`
+}
+
+type RoleResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+
+	PermissionResponses []*PermissionResponse `json:"permissions,omitempty"`
+}
+
+type PermissionResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 type VerifyUserRequest struct {
@@ -24,11 +40,12 @@ type LoginUserRequest struct {
 }
 
 type LoginUserResponse struct {
-	Email     string `json:"email,omitempty"`
-	Name      string `json:"name,omitempty"`
-	Token     string `json:"token,omitempty"`
-	CreatedAt int64  `json:"created_at,omitempty"`
-	UpdatedAt int64  `json:"updated_at,omitempty"`
+	ID        string     `json:"id,omitempty"`
+	Email     string     `json:"email,omitempty"`
+	Name      string     `json:"name,omitempty"`
+	Token     string     `json:"token,omitempty"`
+	CreatedAt time.Time  `json:"created_at,omitempty"`
+	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 
 type LogoutUserRequest struct {
@@ -36,5 +53,6 @@ type LogoutUserRequest struct {
 }
 
 type GetUserRequest struct {
-	ID string `json:"id" validate:"required,max=100"`
+	ID         string `json:"id" validate:"required,max=100"`
+	IsDetailed bool   `json:"-"`
 }

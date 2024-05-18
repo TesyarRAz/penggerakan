@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS public.user_permission;
+DROP TABLE IF EXISTS public.user_permission CASCADE;

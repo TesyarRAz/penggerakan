@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	user_config "github.com/TesyarRAz/penggerak/internal/app/user/config"
+	monolith_config "github.com/TesyarRAz/penggerak/internal/app/monolith/config"
 	"github.com/TesyarRAz/penggerak/internal/pkg/config"
 )
 
@@ -14,7 +14,7 @@ func main() {
 	validate := config.NewValidator()
 	db := config.NewDatabase(dotenv, log)
 
-	user_config.Bootstrap(&user_config.BootstrapConfig{
+	monolith_config.Bootstrap(&monolith_config.BootstrapConfig{
 		App:      app,
 		DB:       db,
 		Log:      log,

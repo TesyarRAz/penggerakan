@@ -5,7 +5,6 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
@@ -13,17 +12,21 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	requestBody := model.LoginUserRequest{
-		Email:    "admin@example.com",
-		Password: "password",
-	}
+	requestBody, response, responseBody := GetAdmin(t)
 
-	bodyJson, err := json.Marshal(requestBody)
-	assert.Nil(t, err)
+	assert.Equal(t, http.StatusOK, response.StatusCode)
+	assert.Equal(t, requestBody.Email, responseBody.Data.Email)
+	assert.NotNil(t, responseBody.Data.Token)
+	assert.NotNil(t, responseBody.Data.CreatedAt)
+}
 
-	request := httptest.NewRequest("POST", "/v1/auth/login", strings.NewReader(string(bodyJson)))
+func TestMe(t *testing.T) {
+	token := GetAdminToken(t)
+
+	request := httptest.NewRequest(http.MethodGet, "/auth/me", nil)
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("Accept", "application/json")
+	request.Header.Set("Authorization", "Bearer "+token)
 
 	response, err := app.Test(request)
 	assert.Nil(t, err)
@@ -31,12 +34,12 @@ func TestLogin(t *testing.T) {
 	bytes, err := io.ReadAll(response.Body)
 	assert.Nil(t, err)
 
-	responseBody := new(model.WebResponse[model.UserResponse])
+	responseBody := new(model.WebResponse[model.LoginUserResponse])
 	err = json.Unmarshal(bytes, responseBody)
 	assert.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
-	assert.Equal(t, requestBody.Email, responseBody.Data.Email)
+	assert.NotNil(t, responseBody.Data.ID)
+	assert.NotNil(t, responseBody.Data.Email)
 	assert.NotNil(t, responseBody.Data.CreatedAt)
-	assert.NotNil(t, responseBody.Data.UpdatedAt)
 }
