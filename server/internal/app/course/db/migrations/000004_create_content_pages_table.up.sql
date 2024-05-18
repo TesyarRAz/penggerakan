@@ -3,7 +3,7 @@ CREATE TABLE public.content_pages (
 	course_id uuid NULL,
 	title varchar NULL,
 	"content" text NULL,
-    created_at timestamp NOT NULL DEFAULT NOW(),
+    created_at timestamp NOT NULL,
     updated_at timestamp,
 	CONSTRAINT content_blogs_pk PRIMARY KEY (id)
 );

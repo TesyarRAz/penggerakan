@@ -16,7 +16,8 @@ var (
 	logger *logrus.Logger
 	db     *sqlx.DB
 
-	withSeed = flag.Bool("seed", false, "Seed database")
+	withSeed  = flag.Bool("seed", false, "Seed database")
+	withFresh = flag.Bool("fresh", false, "Fresh database")
 )
 
 func main() {
@@ -37,6 +38,13 @@ func main() {
 	if err != nil {
 		logger.Fatalf("Failed to create migration: %v", err)
 		return
+	}
+
+	if *withFresh {
+		if err := (*migration).Down(); err != nil {
+			logger.Fatalf("Failed to fresh user: %v", err)
+			return
+		}
 	}
 
 	if err := (*migration).Up(ctx, *withSeed); err != nil {

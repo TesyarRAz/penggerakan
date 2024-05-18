@@ -6,6 +6,7 @@ import (
 	course_entity "github.com/TesyarRAz/penggerak/internal/app/course/entity"
 	course_converter "github.com/TesyarRAz/penggerak/internal/app/course/model/converter"
 	course_repository "github.com/TesyarRAz/penggerak/internal/app/course/repository"
+	"github.com/TesyarRAz/penggerak/internal/pkg/errors"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/go-playground/validator/v10"
@@ -40,7 +41,7 @@ func (c *CourseUseCase) List(ctx context.Context, request *model.PageRequest) ([
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, nil, err
+		return nil, nil, errors.InternalServerError{}
 	}
 	defer tx.Rollback()
 
@@ -48,11 +49,11 @@ func (c *CourseUseCase) List(ctx context.Context, request *model.PageRequest) ([
 	pageInfo, err := c.CourseRepository.List(tx, &courses, request)
 	if err != nil {
 		c.Log.Warnf("Failed to list course : %+v", err)
-		return nil, nil, err
+		return nil, nil, errors.InternalServerError{}
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, nil, err
+		return nil, nil, errors.InternalServerError{}
 	}
 
 	return lop.Map(courses, func(course *course_entity.Course, _ int) *model.CourseResponse {
@@ -68,7 +69,7 @@ func (c *CourseUseCase) Create(ctx context.Context, request *model.CreateCourseR
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, err
+		return nil, errors.InternalServerError{}
 	}
 	defer tx.Rollback()
 
@@ -79,11 +80,100 @@ func (c *CourseUseCase) Create(ctx context.Context, request *model.CreateCourseR
 
 	if err = c.CourseRepository.Create(tx, &course); err != nil {
 		c.Log.Warnf("Failed to create course : %+v", err)
-		return nil, err
+		return nil, errors.InternalServerError{}
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
+		return nil, errors.InternalServerError{}
+	}
+
+	return course_converter.CourseToResponse(&course), nil
+}
+
+func (c *CourseUseCase) Update(ctx context.Context, request *model.UpdateCourseRequest) (*model.CourseResponse, error) {
+	if err := c.Validate.Struct(request); err != nil {
 		return nil, err
+	}
+
+	tx, err := c.DB.BeginTxx(ctx, nil)
+	if err != nil {
+		c.Log.Warnf("Failed to begin transaction : %+v", err)
+		return nil, errors.InternalServerError{}
+	}
+	defer tx.Rollback()
+
+	var course course_entity.Course
+	if err := c.CourseRepository.FindById(tx, &course, request.ID); err != nil {
+		c.Log.Warnf("Failed to find course : %+v", err)
+		return nil, errors.NotFound{}
+	}
+
+	course.Name = request.Name
+	course.Image = request.Image
+
+	if err = c.CourseRepository.Update(tx, &course); err != nil {
+		c.Log.Warnf("Failed to update course : %+v", err)
+		return nil, errors.InternalServerError{}
+	}
+	if err := tx.Commit(); err != nil {
+		c.Log.Warnf("Failed to commit transaction : %+v", err)
+		return nil, errors.InternalServerError{}
+	}
+
+	return course_converter.CourseToResponse(&course), nil
+}
+
+func (c *CourseUseCase) Delete(ctx context.Context, request *model.DeleteCourseRequest) error {
+	if err := c.Validate.Struct(request); err != nil {
+		return err
+	}
+
+	tx, err := c.DB.BeginTxx(ctx, nil)
+	if err != nil {
+		c.Log.Warnf("Failed to begin transaction : %+v", err)
+		return errors.InternalServerError{}
+	}
+	defer tx.Rollback()
+
+	var course course_entity.Course
+	if err := c.CourseRepository.FindById(tx, &course, request.ID); err != nil {
+		c.Log.Warnf("Failed to find course : %+v", err)
+		return errors.NotFound{}
+	}
+
+	if err = c.CourseRepository.Delete(tx, &course); err != nil {
+		c.Log.Warnf("Failed to delete course : %+v", err)
+		return errors.InternalServerError{}
+	}
+
+	if err := tx.Commit(); err != nil {
+		c.Log.Warnf("Failed to commit transaction : %+v", err)
+		return errors.InternalServerError{}
+	}
+
+	return nil
+}
+
+func (c *CourseUseCase) FindById(ctx context.Context, request *model.FindCourseRequest) (*model.CourseResponse, error) {
+	if err := c.Validate.Struct(request); err != nil {
+		return nil, err
+	}
+
+	tx, err := c.DB.BeginTxx(ctx, nil)
+	if err != nil {
+		c.Log.Warnf("Failed to begin transaction : %+v", err)
+		return nil, errors.InternalServerError{}
+	}
+	defer tx.Rollback()
+
+	var course course_entity.Course
+	if err := c.CourseRepository.FindById(tx, &course, request.ID); err != nil {
+		c.Log.Warnf("Failed to find course : %+v", err)
+		return nil, errors.NotFound{}
+	}
+	if err := tx.Commit(); err != nil {
+		c.Log.Warnf("Failed to commit transaction : %+v", err)
+		return nil, errors.InternalServerError{}
 	}
 
 	return course_converter.CourseToResponse(&course), nil

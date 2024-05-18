@@ -3,10 +3,10 @@ package model
 import "time"
 
 type CourseResponse struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Image     string    `json:"image"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Image     string     `json:"image"`
+	CreatedAt *time.Time `json:"created_at"`
 }
 
 type CreateCourseRequest struct {
@@ -24,6 +24,6 @@ type DeleteCourseRequest struct {
 	ID string `json:"id" validate:"required"`
 }
 
-type GetCourseRequest struct {
+type FindCourseRequest struct {
 	ID string `json:"id" validate:"required"`
 }

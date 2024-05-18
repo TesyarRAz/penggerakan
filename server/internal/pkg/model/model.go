@@ -1,9 +1,9 @@
 package model
 
 type WebResponse[T any] struct {
-	Data   T             `json:"data"`
-	Paging *PageMetadata `json:"paging,omitempty"`
-	Errors string        `json:"errors,omitempty"`
+	Data    T      `json:"data"`
+	Message string `json:"message"`
+	Errors  string `json:"errors"`
 }
 
 type SearchRequest struct {
@@ -23,6 +23,6 @@ type PageMetadata struct {
 }
 
 type PageResponse[T any] struct {
-	Data         []T          `json:"data,omitempty"`
-	PageMetadata PageMetadata `json:"paging,omitempty"`
+	Data         []T          `json:"data"`
+	PageMetadata PageMetadata `json:"paging"`
 }

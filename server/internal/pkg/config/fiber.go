@@ -37,12 +37,15 @@ func NewErrorHandler() fiber.ErrorHandler {
 		}
 		if _, ok := err.(errors.Unauthorized); ok {
 			code = fiber.StatusUnauthorized
+			msg = "Unauthorized"
 		}
 		if _, ok := err.(errors.NotFound); ok {
 			code = fiber.StatusNotFound
+			msg = "Not found"
 		}
 		if _, ok := err.(errors.InternalServerError); ok {
 			code = fiber.StatusInternalServerError
+			msg = "Internal server error"
 		}
 
 		return ctx.Status(code).JSON(fiber.Map{

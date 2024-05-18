@@ -11,7 +11,7 @@ type User struct {
 	Email        string         `db:"email"`
 	Password     string         `db:"password"`
 	ProfileImage sql.NullString `db:"profile_image"`
-	CreatedAt    time.Time      `db:"created_at"`
+	CreatedAt    *time.Time     `db:"created_at"`
 	UpdatedAt    *time.Time     `db:"updated_at"`
 
 	Roles       []*Role

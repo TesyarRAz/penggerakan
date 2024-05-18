@@ -39,7 +39,7 @@ func (c *CourseRepository) List(db *sqlx.Tx, entities *[]*course_entity.Course, 
 			return course.ID
 		},
 		FnCreatedAt: func(course *course_entity.Course) time.Time {
-			return course.CreatedAt
+			return *course.CreatedAt
 		},
 	})
 	if err != nil {
@@ -53,28 +53,42 @@ func (c *CourseRepository) List(db *sqlx.Tx, entities *[]*course_entity.Course, 
 }
 
 func (c *CourseRepository) Count(db *sqlx.Tx) (int64, error) {
-	panic("unimplemented")
+	var count int64
+	err := db.Get(&count, "SELECT COUNT(*) FROM courses")
+
+	return count, err
 }
 
 func (c *CourseRepository) Create(db *sqlx.Tx, entity *course_entity.Course) error {
 	entity.ID = util.GenerateUUID().String()
+	now := time.Now()
+	entity.CreatedAt = &now
 
-	_, err := db.NamedExec("INSERT INTO courses (id, name, image) VALUES (:id, :name, :image)", entity)
+	_, err := db.NamedExec("INSERT INTO courses (id, name, image, created_at) VALUES (:id, :name, :image, :created_at)", entity)
 
 	return err
 }
 
 // Delete implements repository.BaseActionRepository.
 func (c *CourseRepository) Delete(db *sqlx.Tx, entity *course_entity.Course) error {
-	panic("unimplemented")
+	_, err := db.Exec("DELETE FROM courses WHERE id = $1", entity.ID)
+
+	return err
 }
 
 // FindById implements repository.BaseActionRepository.
 func (c *CourseRepository) FindById(db *sqlx.Tx, entity *course_entity.Course, id any) error {
-	panic("unimplemented")
+	err := db.Get(entity, "SELECT * FROM courses WHERE id = $1", id)
+
+	return err
 }
 
 // Update implements repository.BaseActionRepository.
 func (c *CourseRepository) Update(db *sqlx.Tx, entity *course_entity.Course) error {
-	panic("unimplemented")
+	now := time.Now()
+	entity.UpdatedAt = &now
+
+	_, err := db.NamedExec("UPDATE courses SET name = :name, image = :image, updated_at = :updated_at WHERE id = :id", entity)
+
+	return err
 }

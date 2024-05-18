@@ -1,8 +1,9 @@
 package user_repository
 
 import (
+	"time"
+
 	user_entity "github.com/TesyarRAz/penggerak/internal/app/user/entity"
-	"github.com/TesyarRAz/penggerak/internal/pkg/entity"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/TesyarRAz/penggerak/internal/pkg/repository"
 	"github.com/TesyarRAz/penggerak/internal/pkg/util"
@@ -32,8 +33,10 @@ func (r *UserRepository) List(db *sqlx.Tx, entities *[]*user_entity.User, filter
 
 func (r *UserRepository) Create(db *sqlx.Tx, entity *user_entity.User) (err error) {
 	entity.ID = util.GenerateUUID().String()
+	now := time.Now()
+	entity.CreatedAt = &now
 
-	_, err = db.NamedExec("INSERT INTO users (id, name, email, password) VALUES (:id, :name, :email, :password)", entity)
+	_, err = db.NamedExec("INSERT INTO users (id, name, email, password, created_at) VALUES (:id, :name, :email, :password, :created_at)", entity)
 
 	return
 }
@@ -61,15 +64,17 @@ func (r *UserRepository) FindByEmail(db *sqlx.Tx, entity *user_entity.User, emai
 }
 
 func (r *UserRepository) Update(db *sqlx.Tx, entity *user_entity.User) (err error) {
-	_, err = db.NamedExec("UPDATE users SET id = :id, name = :name, email = :email, password = :email", entity)
+	now := time.Now()
+	entity.UpdatedAt = &now
+
+	_, err = db.NamedExec("UPDATE users SET id = :id, name = :name, email = :email, password = :email, updated_at = :updated_at", entity)
 
 	return
 }
 
-func (r *UserRepository) Count(db *sqlx.Tx) (number int64, err error) {
-	var count entity.Count
-	err = db.Get(&count, "SELECT COUNT(*) as `count` FROM users")
-	number = count.Count
+func (r *UserRepository) Count(db *sqlx.Tx) (int64, error) {
+	var count int64
+	err := db.Get(&count, "SELECT COUNT(*) FROM users")
 
-	return
+	return count, err
 }

@@ -13,5 +13,8 @@ type RouteConfig struct {
 
 func (c *RouteConfig) Setup() {
 	c.Fiber.Get("/courses", c.AuthMiddleware, c.UserController.List)
+	c.Fiber.Get("/courses/:id", c.AuthMiddleware, c.UserController.FindById)
 	c.Fiber.Post("/courses", c.AuthMiddleware, c.UserController.Create)
+	c.Fiber.Put("/courses/:id", c.AuthMiddleware, c.UserController.Update)
+	c.Fiber.Delete("/courses/:id", c.AuthMiddleware, c.UserController.Delete)
 }

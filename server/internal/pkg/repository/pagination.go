@@ -40,7 +40,7 @@ func Paginate[T any](config *PaginationConfig[T]) ([]*T, *model.PageMetadata, er
 		pointsNext = decodedCursor["points_next"] == true
 
 		operator, order := getPaginationOperator(pointsNext, config.Request.Order)
-		query = query + fmt.Sprintf("(created_at %s :created_at OR (created_at = :created_at AND id %s :id)) ", operator, operator)
+		query = query + fmt.Sprintf("WHERE (created_at %s :created_at OR (created_at = :created_at AND id %s :id)) ", operator, operator)
 		namedVar["created_at"] = decodedCursor["created_at"]
 		namedVar["id"] = decodedCursor["id"]
 		if order != "" {
@@ -54,6 +54,8 @@ func Paginate[T any](config *PaginationConfig[T]) ([]*T, *model.PageMetadata, er
 	if err != nil {
 		return nil, nil, err
 	}
+
+	query = config.DB.Rebind(query)
 
 	var entities []*T
 	if err := config.DB.Select(&entities, query, args...); err != nil {
@@ -72,28 +74,28 @@ func Paginate[T any](config *PaginationConfig[T]) ([]*T, *model.PageMetadata, er
 	pageInfo := model.PageMetadata{}
 	nextCur := Cursor{}
 	prevCur := Cursor{}
-	if isFirstPage {
-		if hasPagination {
+	if hasPagination {
+		if isFirstPage {
 			nextCur := createCursor(config.FnId(entities[config.Limit-1]), config.FnCreatedAt(entities[config.Limit-1]), true)
 			pageInfo = model.PageMetadata{
 				NextCursor: encodeCursor(nextCur),
 			}
-		}
-	} else {
-		if pointsNext {
-			if hasPagination {
-				nextCur = createCursor(config.FnId(entities[config.Limit-1]), config.FnCreatedAt(entities[config.Limit-1]), true)
-			}
-			prevCur = createCursor(config.FnId(entities[0]), config.FnCreatedAt(entities[0]), false)
 		} else {
-			nextCur = createCursor(config.FnId(entities[config.Limit-1]), config.FnCreatedAt(entities[config.Limit-1]), true)
-			if hasPagination {
+			if pointsNext {
+				if hasPagination {
+					nextCur = createCursor(config.FnId(entities[config.Limit-1]), config.FnCreatedAt(entities[config.Limit-1]), true)
+				}
 				prevCur = createCursor(config.FnId(entities[0]), config.FnCreatedAt(entities[0]), false)
+			} else {
+				nextCur = createCursor(config.FnId(entities[config.Limit-1]), config.FnCreatedAt(entities[config.Limit-1]), true)
+				if hasPagination {
+					prevCur = createCursor(config.FnId(entities[0]), config.FnCreatedAt(entities[0]), false)
+				}
 			}
-		}
-		pageInfo = model.PageMetadata{
-			NextCursor: encodeCursor(nextCur),
-			PrevCursor: encodeCursor(prevCur),
+			pageInfo = model.PageMetadata{
+				NextCursor: encodeCursor(nextCur),
+				PrevCursor: encodeCursor(prevCur),
+			}
 		}
 	}
 

@@ -10,7 +10,7 @@ import (
 type UserResponse struct {
 	Email     string     `json:"email"`
 	Name      string     `json:"name"`
-	CreatedAt time.Time  `json:"created_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 
 	RoleResponses       []*RoleResponse       `json:"roles,omitempty"`
@@ -65,7 +65,7 @@ type LoginUserResponse struct {
 	Email     string     `json:"email,omitempty"`
 	Name      string     `json:"name,omitempty"`
 	Token     string     `json:"token,omitempty"`
-	CreatedAt time.Time  `json:"created_at,omitempty"`
+	CreatedAt *time.Time `json:"created_at,omitempty"`
 	UpdatedAt *time.Time `json:"updated_at,omitempty"`
 }
 

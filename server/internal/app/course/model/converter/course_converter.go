@@ -7,8 +7,9 @@ import (
 
 func CourseToResponse(course *course_entity.Course) *model.CourseResponse {
 	return &model.CourseResponse{
-		ID:    course.ID,
-		Name:  course.Name,
-		Image: course.Image,
+		ID:        course.ID,
+		Name:      course.Name,
+		Image:     course.Image,
+		CreatedAt: course.CreatedAt,
 	}
 }

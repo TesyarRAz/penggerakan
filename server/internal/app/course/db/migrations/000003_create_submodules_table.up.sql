@@ -3,7 +3,7 @@ CREATE TABLE public.submodules (
 	module_id uuid NULL,
 	"name" varchar NULL,
 	"structure" varchar NULL,
-    created_at timestamp NOT NULL DEFAULT NOW(),
+    created_at timestamp NOT NULL,
     updated_at timestamp,
 	CONSTRAINT submodules_pk PRIMARY KEY (id)
 );

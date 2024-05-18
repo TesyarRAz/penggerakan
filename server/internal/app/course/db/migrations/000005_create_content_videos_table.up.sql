@@ -4,7 +4,7 @@ CREATE TABLE public.content_videos (
 	video_url varchar NULL,
     title varchar NULL,
     description text NULL,
-    created_at timestamp NOT NULL DEFAULT NOW(),
+    created_at timestamp NOT NULL,
     updated_at timestamp,
 	CONSTRAINT content_video_pk PRIMARY KEY (id)
 );
