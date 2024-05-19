@@ -5,10 +5,12 @@ import (
 	"time"
 
 	user_entity "github.com/TesyarRAz/penggerak/internal/app/user/entity"
+	user_model "github.com/TesyarRAz/penggerak/internal/app/user/model"
 	user_converter "github.com/TesyarRAz/penggerak/internal/app/user/model/converter"
 	user_repository "github.com/TesyarRAz/penggerak/internal/app/user/repository"
 	"github.com/TesyarRAz/penggerak/internal/pkg/errors"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
+	shared_model "github.com/TesyarRAz/penggerak/internal/pkg/model/shared"
 	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
@@ -37,7 +39,7 @@ func NewUserUseCase(db *sqlx.DB, dotenvcfg util.DotEnvConfig, logger *logrus.Log
 	}
 }
 
-func (c *UserUseCase) Verify(ctx context.Context, request *model.VerifyUserRequest) (*model.Auth, error) {
+func (c *UserUseCase) Verify(ctx context.Context, request *shared_model.VerifyUserRequest) (*model.Auth, error) {
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.Warnf("Failed to validate request : %+v", err)
 		return nil, err
@@ -58,13 +60,10 @@ func (c *UserUseCase) Verify(ctx context.Context, request *model.VerifyUserReque
 		return nil, err
 	}
 
-	return &model.Auth{
-		ID:   claims["id"].(string),
-		Name: claims["sub"].(string),
-	}, nil
+	return model.NewAuth(claims["id"].(string), claims["sub"].(string), claims), nil
 }
 
-func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest) (*model.LoginUserResponse, error) {
+func (c *UserUseCase) Login(ctx context.Context, request *user_model.LoginUserRequest) (*user_model.LoginUserResponse, error) {
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.Warnf("Failed to validate request : %+v", err)
 		return nil, err
@@ -119,7 +118,7 @@ func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest
 		return nil, errors.InternalServerError{}
 	}
 
-	return &model.LoginUserResponse{
+	return &user_model.LoginUserResponse{
 		ID:        user.ID,
 		Name:      user.Name,
 		Email:     user.Email,
@@ -129,7 +128,7 @@ func (c *UserUseCase) Login(ctx context.Context, request *model.LoginUserRequest
 	}, nil
 }
 
-func (c *UserUseCase) GetUser(ctx context.Context, request *model.GetUserRequest) (*model.UserResponse, error) {
+func (c *UserUseCase) GetUser(ctx context.Context, request *user_model.GetUserRequest) (*user_model.UserResponse, error) {
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.Warnf("Failed to validate request : %+v", err)
 		return nil, err

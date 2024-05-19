@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	user_model "github.com/TesyarRAz/penggerak/internal/app/user/model"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -34,7 +35,7 @@ func TestMe(t *testing.T) {
 	bytes, err := io.ReadAll(response.Body)
 	assert.Nil(t, err)
 
-	responseBody := new(model.WebResponse[model.LoginUserResponse])
+	responseBody := new(model.WebResponse[user_model.LoginUserResponse])
 	err = json.Unmarshal(bytes, responseBody)
 	assert.Nil(t, err)
 

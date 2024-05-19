@@ -1,4 +1,4 @@
-package model
+package course_model
 
 import "time"
 
@@ -9,21 +9,25 @@ type CourseResponse struct {
 	CreatedAt *time.Time `json:"created_at"`
 }
 
+type ParamCourseRequest struct {
+	ID string `params:"id" validate:"required"`
+}
+
 type CreateCourseRequest struct {
 	Name  string `json:"name" validate:"required,max=100"`
 	Image string `json:"image" validate:"required,max=100"`
 }
 
 type UpdateCourseRequest struct {
-	ID    string `json:"id" validate:"required"`
+	*ParamCourseRequest
 	Name  string `json:"name" validate:"required,max=100"`
 	Image string `json:"image" validate:"required,max=100"`
 }
 
 type DeleteCourseRequest struct {
-	ID string `json:"id" validate:"required"`
+	*ParamCourseRequest
 }
 
 type FindCourseRequest struct {
-	ID string `json:"id" validate:"required"`
+	*ParamCourseRequest
 }

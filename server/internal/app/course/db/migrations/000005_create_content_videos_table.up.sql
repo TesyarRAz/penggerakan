@@ -1,9 +1,9 @@
 CREATE TABLE public.content_videos (
 	id uuid NOT NULL,
-	course_id uuid NULL,
-	video_url varchar NULL,
-    title varchar NULL,
-    description text NULL,
+	course_id uuid NOT NULL,
+	video_url varchar NOT NULL,
+    title varchar NOT NULL,
+    description text NOT NULL,
     created_at timestamp NOT NULL,
     updated_at timestamp,
 	CONSTRAINT content_video_pk PRIMARY KEY (id)

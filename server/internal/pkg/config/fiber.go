@@ -20,7 +20,6 @@ func NewFiber(config util.DotEnvConfig) *fiber.App {
 
 	return app
 }
-
 func NewErrorHandler() fiber.ErrorHandler {
 	return func(ctx *fiber.Ctx, err error) error {
 		ers := make(map[string]string)
@@ -34,6 +33,7 @@ func NewErrorHandler() fiber.ErrorHandler {
 			for _, fe := range e {
 				ers[fe.Field()] = fe.Tag()
 			}
+			code = fiber.StatusBadRequest
 		}
 		if _, ok := err.(errors.Unauthorized); ok {
 			code = fiber.StatusUnauthorized
@@ -46,6 +46,10 @@ func NewErrorHandler() fiber.ErrorHandler {
 		if _, ok := err.(errors.InternalServerError); ok {
 			code = fiber.StatusInternalServerError
 			msg = "Internal server error"
+		}
+		if _, ok := err.(errors.BadRequest); ok {
+			code = fiber.StatusBadRequest
+			msg = "Bad request"
 		}
 
 		return ctx.Status(code).JSON(fiber.Map{

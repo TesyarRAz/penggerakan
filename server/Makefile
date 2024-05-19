@@ -16,7 +16,7 @@ migration:
 
 migration-fresh:
 	@echo "Running migration"
-	@go run cmd/migration_monolith/main.go -seed -fresh
+	@go run cmd/migration_monolith/main.go --seed --fresh
 
 testing:
 	@echo "Running tests"

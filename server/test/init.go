@@ -11,6 +11,7 @@ import (
 
 	monolith_config "github.com/TesyarRAz/penggerak/internal/app/monolith/config"
 	monolith_migration "github.com/TesyarRAz/penggerak/internal/app/monolith/db"
+	user_model "github.com/TesyarRAz/penggerak/internal/app/user/model"
 	"github.com/TesyarRAz/penggerak/internal/pkg/config"
 	migration "github.com/TesyarRAz/penggerak/internal/pkg/db"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
@@ -68,8 +69,8 @@ func init() {
 	}
 }
 
-func GetAdmin(t *testing.T) (*model.LoginUserRequest, *http.Response, *model.WebResponse[model.LoginUserResponse]) {
-	requestBody := model.LoginUserRequest{
+func GetAdmin(t *testing.T) (*user_model.LoginUserRequest, *http.Response, *model.WebResponse[user_model.LoginUserResponse]) {
+	requestBody := user_model.LoginUserRequest{
 		Email:    "admin@example.com",
 		Password: "password",
 	}
@@ -87,7 +88,7 @@ func GetAdmin(t *testing.T) (*model.LoginUserRequest, *http.Response, *model.Web
 	bytes, err := io.ReadAll(response.Body)
 	assert.Nil(t, err)
 
-	responseBody := new(model.WebResponse[model.LoginUserResponse])
+	responseBody := new(model.WebResponse[user_model.LoginUserResponse])
 	err = json.Unmarshal(bytes, responseBody)
 	assert.Nil(t, err)
 

@@ -18,8 +18,6 @@ type CourseRepository struct {
 	repository.Repository
 }
 
-var _ repository.BaseActionRepository[course_entity.Course] = &CourseRepository{}
-
 func NewCourseRepository(log *logrus.Logger, db *sqlx.DB) *CourseRepository {
 	return &CourseRepository{
 		Log: log,
@@ -92,3 +90,5 @@ func (c *CourseRepository) Update(db *sqlx.Tx, entity *course_entity.Course) err
 
 	return err
 }
+
+var _ repository.BaseActionRepository[course_entity.Course] = &CourseRepository{}

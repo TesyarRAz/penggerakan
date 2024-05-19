@@ -11,22 +11,41 @@ import (
 )
 
 type App struct {
-	cfg              *config.BootstrapConfig
+	cfg *config.BootstrapConfig
+
 	courseRepository *course_repository.CourseRepository
 	courseUseCase    *course_usecase.CourseUseCase
+
+	moduleRepository *course_repository.ModuleRepository
+	moduleUseCase    *course_usecase.ModuleUseCase
+
+	subModuleRepository *course_repository.SubModuleRepository
+	subModuleUseCase    *course_usecase.SubModuleUseCase
 }
 
 var _ config.App = &App{}
 
 func NewApp(cfg *config.BootstrapConfig) *App {
 	courseRepository := course_repository.NewCourseRepository(cfg.Log, cfg.DB)
-
 	courseUseCase := course_usecase.NewCourseUseCase(cfg.DB, cfg.Env, cfg.Log, cfg.Validate, courseRepository)
 
+	moduleRepository := course_repository.NewModuleRepository(cfg.Log, cfg.DB)
+	moduleUseCase := course_usecase.NewModuleUseCase(cfg.DB, cfg.Env, cfg.Log, cfg.Validate, courseRepository, moduleRepository)
+
+	subModuleRepository := course_repository.NewSubModuleRepository(cfg.Log, cfg.DB)
+	subModuleUseCase := course_usecase.NewSubModuleUseCase(cfg.DB, cfg.Env, cfg.Log, cfg.Validate, moduleRepository, subModuleRepository)
+
 	return &App{
-		cfg:              cfg,
+		cfg: cfg,
+
 		courseRepository: courseRepository,
 		courseUseCase:    courseUseCase,
+
+		moduleRepository: moduleRepository,
+		moduleUseCase:    moduleUseCase,
+
+		subModuleRepository: subModuleRepository,
+		subModuleUseCase:    subModuleUseCase,
 	}
 }
 
@@ -35,16 +54,20 @@ func (a *App) Provider() config.Provider {
 }
 
 func (a *App) Service(providers config.Provider) {
-	userController := course_http.NewCourseController(a.courseUseCase, a.cfg.Log)
+	courseController := course_http.NewCourseController(a.courseUseCase, a.cfg.Log)
+	moduleController := course_http.NewModuleController(a.moduleUseCase, a.cfg.Log)
+	subModuleController := course_http.NewSubModuleController(a.subModuleUseCase, a.cfg.Log)
 
 	authService := providers["auth"].(service.AuthService)
 
 	authMiddleware := course_middleware.NewAuth(&authService)
 
 	routeConfig := course_route.RouteConfig{
-		Fiber:          a.cfg.Fiber,
-		AuthMiddleware: authMiddleware,
-		UserController: userController,
+		Fiber:               a.cfg.Fiber,
+		AuthMiddleware:      authMiddleware,
+		CourseController:    courseController,
+		ModuleController:    moduleController,
+		SubModuleController: subModuleController,
 	}
 	routeConfig.Setup()
 }

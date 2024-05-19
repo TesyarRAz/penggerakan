@@ -2,11 +2,11 @@ package course_converter
 
 import (
 	course_entity "github.com/TesyarRAz/penggerak/internal/app/course/entity"
-	"github.com/TesyarRAz/penggerak/internal/pkg/model"
+	course_model "github.com/TesyarRAz/penggerak/internal/app/course/model"
 )
 
-func CourseToResponse(course *course_entity.Course) *model.CourseResponse {
-	return &model.CourseResponse{
+func CourseToResponse(course *course_entity.Course) *course_model.CourseResponse {
+	return &course_model.CourseResponse{
 		ID:        course.ID,
 		Name:      course.Name,
 		Image:     course.Image,

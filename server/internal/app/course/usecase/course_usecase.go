@@ -4,6 +4,7 @@ import (
 	"context"
 
 	course_entity "github.com/TesyarRAz/penggerak/internal/app/course/entity"
+	course_model "github.com/TesyarRAz/penggerak/internal/app/course/model"
 	course_converter "github.com/TesyarRAz/penggerak/internal/app/course/model/converter"
 	course_repository "github.com/TesyarRAz/penggerak/internal/app/course/repository"
 	"github.com/TesyarRAz/penggerak/internal/pkg/errors"
@@ -33,7 +34,7 @@ func NewCourseUseCase(db *sqlx.DB, dotenvcfg util.DotEnvConfig, logger *logrus.L
 	}
 }
 
-func (c *CourseUseCase) List(ctx context.Context, request *model.PageRequest) ([]*model.CourseResponse, *model.PageMetadata, error) {
+func (c *CourseUseCase) List(ctx context.Context, request *model.PageRequest) ([]*course_model.CourseResponse, *model.PageMetadata, error) {
 	if err := c.Validate.Struct(request); err != nil {
 		return nil, nil, err
 	}
@@ -56,12 +57,12 @@ func (c *CourseUseCase) List(ctx context.Context, request *model.PageRequest) ([
 		return nil, nil, errors.InternalServerError{}
 	}
 
-	return lop.Map(courses, func(course *course_entity.Course, _ int) *model.CourseResponse {
+	return lop.Map(courses, func(course *course_entity.Course, _ int) *course_model.CourseResponse {
 		return course_converter.CourseToResponse(course)
 	}), pageInfo, nil
 }
 
-func (c *CourseUseCase) Create(ctx context.Context, request *model.CreateCourseRequest) (*model.CourseResponse, error) {
+func (c *CourseUseCase) Create(ctx context.Context, request *course_model.CreateCourseRequest) (*course_model.CourseResponse, error) {
 	if err := c.Validate.Struct(request); err != nil {
 		return nil, err
 	}
@@ -90,7 +91,7 @@ func (c *CourseUseCase) Create(ctx context.Context, request *model.CreateCourseR
 	return course_converter.CourseToResponse(&course), nil
 }
 
-func (c *CourseUseCase) Update(ctx context.Context, request *model.UpdateCourseRequest) (*model.CourseResponse, error) {
+func (c *CourseUseCase) Update(ctx context.Context, request *course_model.UpdateCourseRequest) (*course_model.CourseResponse, error) {
 	if err := c.Validate.Struct(request); err != nil {
 		return nil, err
 	}
@@ -123,7 +124,7 @@ func (c *CourseUseCase) Update(ctx context.Context, request *model.UpdateCourseR
 	return course_converter.CourseToResponse(&course), nil
 }
 
-func (c *CourseUseCase) Delete(ctx context.Context, request *model.DeleteCourseRequest) error {
+func (c *CourseUseCase) Delete(ctx context.Context, request *course_model.DeleteCourseRequest) error {
 	if err := c.Validate.Struct(request); err != nil {
 		return err
 	}
@@ -154,7 +155,7 @@ func (c *CourseUseCase) Delete(ctx context.Context, request *model.DeleteCourseR
 	return nil
 }
 
-func (c *CourseUseCase) FindById(ctx context.Context, request *model.FindCourseRequest) (*model.CourseResponse, error) {
+func (c *CourseUseCase) FindById(ctx context.Context, request *course_model.FindCourseRequest) (*course_model.CourseResponse, error) {
 	if err := c.Validate.Struct(request); err != nil {
 		return nil, err
 	}

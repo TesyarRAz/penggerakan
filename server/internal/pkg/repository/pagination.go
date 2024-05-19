@@ -19,6 +19,8 @@ type PaginationConfig[T any] struct {
 	Limit   int
 	Request *model.PageRequest
 
+	FnWhereBuilder func(*map[string]interface{}) string
+
 	FnId        func(*T) string
 	FnCreatedAt func(*T) time.Time
 }
@@ -31,6 +33,11 @@ func Paginate[T any](config *PaginationConfig[T]) ([]*T, *model.PageMetadata, er
 	isFirstPage := config.Request.Cursor == ""
 
 	query := fmt.Sprintf("SELECT * FROM %s ", config.Table)
+	whereQuery := ""
+
+	if config.FnWhereBuilder != nil {
+		whereQuery = config.FnWhereBuilder(&namedVar)
+	}
 
 	if config.Request.Cursor != "" {
 		decodedCursor, err := decodeCursor(config.Request.Cursor)
@@ -40,7 +47,10 @@ func Paginate[T any](config *PaginationConfig[T]) ([]*T, *model.PageMetadata, er
 		pointsNext = decodedCursor["points_next"] == true
 
 		operator, order := getPaginationOperator(pointsNext, config.Request.Order)
-		query = query + fmt.Sprintf("WHERE (created_at %s :created_at OR (created_at = :created_at AND id %s :id)) ", operator, operator)
+		if whereQuery != "" {
+			whereQuery = whereQuery + " AND "
+		}
+		whereQuery = whereQuery + fmt.Sprintf("(created_at %s :created_at OR (created_at = :created_at AND id %s :id)) ", operator, operator)
 		namedVar["created_at"] = decodedCursor["created_at"]
 		namedVar["id"] = decodedCursor["id"]
 		if order != "" {
@@ -48,14 +58,16 @@ func Paginate[T any](config *PaginationConfig[T]) ([]*T, *model.PageMetadata, er
 		}
 	}
 
+	if whereQuery != "" {
+		query = query + "WHERE " + whereQuery
+	}
+
 	// Ini bisa aja di SQL Injection
-	query = query + fmt.Sprintf("ORDER BY created_at %s LIMIT %v ", sortOrder, config.Limit+1)
+	query = query + " " + fmt.Sprintf("ORDER BY created_at %s LIMIT %v ", sortOrder, config.Limit+1)
 	query, args, err := config.DB.BindNamed(query, namedVar)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	query = config.DB.Rebind(query)
 
 	var entities []*T
 	if err := config.DB.Select(&entities, query, args...); err != nil {

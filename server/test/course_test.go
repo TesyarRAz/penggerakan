@@ -8,14 +8,15 @@ import (
 	"strings"
 	"testing"
 
+	course_model "github.com/TesyarRAz/penggerak/internal/app/course/model"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreate(t *testing.T) {
+func TestCreateCourse(t *testing.T) {
 	token := GetAdminToken(t)
 
-	requestBody := model.CreateCourseRequest{
+	requestBody := course_model.CreateCourseRequest{
 		Name:  "Course 1",
 		Image: "Image 1",
 	}
@@ -34,11 +35,11 @@ func TestCreate(t *testing.T) {
 	bytes, err := io.ReadAll(response.Body)
 	assert.Nil(t, err)
 
-	responseBody := new(model.WebResponse[model.CourseResponse])
+	responseBody := new(model.WebResponse[course_model.CourseResponse])
 	err = json.Unmarshal(bytes, responseBody)
 	assert.Nil(t, err)
 
-	assert.Equal(t, http.StatusOK, response.StatusCode)
+	assert.Equal(t, http.StatusCreated, response.StatusCode)
 	assert.Equal(t, requestBody.Name, responseBody.Data.Name)
 	assert.Equal(t, requestBody.Image, responseBody.Data.Image)
 	assert.NotNil(t, responseBody.Data.ID)
@@ -50,7 +51,7 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, int64(1), created)
 }
 
-func TestList(t *testing.T) {
+func TestListCourse(t *testing.T) {
 	token := GetAdminToken(t)
 
 	request := httptest.NewRequest(http.MethodGet, "/courses", nil)
@@ -64,7 +65,7 @@ func TestList(t *testing.T) {
 	bytes, err := io.ReadAll(response.Body)
 	assert.Nil(t, err)
 
-	responseBody := new(model.PageResponse[model.CourseResponse])
+	responseBody := new(model.PageResponse[course_model.CourseResponse])
 	err = json.Unmarshal(bytes, responseBody)
 	assert.Nil(t, err)
 

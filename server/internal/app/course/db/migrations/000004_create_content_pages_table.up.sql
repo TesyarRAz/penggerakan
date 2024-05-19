@@ -1,8 +1,8 @@
 CREATE TABLE public.content_pages (
 	id uuid NOT NULL,
-	course_id uuid NULL,
-	title varchar NULL,
-	"content" text NULL,
+	course_id uuid NOT NULL,
+	title varchar NOT NULL,
+	"content" text NOT NULL,
     created_at timestamp NOT NULL,
     updated_at timestamp,
 	CONSTRAINT content_blogs_pk PRIMARY KEY (id)

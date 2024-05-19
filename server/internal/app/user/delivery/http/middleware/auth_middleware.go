@@ -3,12 +3,13 @@ package user_middleware
 import (
 	user_usecase "github.com/TesyarRAz/penggerak/internal/app/user/usecase"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
+	shared_model "github.com/TesyarRAz/penggerak/internal/pkg/model/shared"
 	"github.com/gofiber/fiber/v2"
 )
 
 func NewAuth(userUserCase *user_usecase.UserUseCase) fiber.Handler {
 	return func(ctx *fiber.Ctx) error {
-		request, err := model.NewVerifyUserRequestFromAuthorizationHeader(ctx.Get("Authorization"))
+		request, err := shared_model.NewVerifyUserRequestFromAuthorizationHeader(ctx.Get("Authorization"))
 		if err != nil {
 			userUserCase.Log.Warnf("Failed parse token : %+v", err)
 			return err

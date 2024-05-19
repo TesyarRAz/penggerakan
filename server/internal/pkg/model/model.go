@@ -7,14 +7,14 @@ type WebResponse[T any] struct {
 }
 
 type SearchRequest struct {
-	Search string `json:"search"`
+	Search string `query:"search"`
 }
 type PageRequest struct {
-	PerPage int    `json:"per_page" validate:"min=1,max=100"`
-	Order   string `json:"order" validate:"oneof=asc desc"`
-	Cursor  string `json:"cursor"`
+	PerPage int    `query:"per_page" validate:"min=1,max=100"`
+	Order   string `query:"order" validate:"oneof=asc desc"`
+	Cursor  string `query:"cursor"`
 
-	SearchRequest
+	*SearchRequest
 }
 
 type PageMetadata struct {

@@ -1,11 +1,6 @@
-package model
+package user_model
 
-import (
-	"strings"
-	"time"
-
-	"github.com/TesyarRAz/penggerak/internal/pkg/errors"
-)
+import "time"
 
 type UserResponse struct {
 	Email     string     `json:"email"`
@@ -27,26 +22,6 @@ type RoleResponse struct {
 type PermissionResponse struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-}
-
-type VerifyUserRequest struct {
-	Token string `validate:"required"`
-}
-
-func NewVerifyUserRequestFromAuthorizationHeader(header string) (*VerifyUserRequest, error) {
-	if header == "" {
-		return nil, errors.Unauthorized{}
-	}
-
-	splitToken := strings.Split(header, " ")
-	if len(splitToken) != 2 || splitToken[0] != "Bearer" {
-		return nil, errors.Unauthorized{}
-	}
-
-	parsedToken := splitToken[1]
-	return &VerifyUserRequest{
-		Token: parsedToken,
-	}, nil
 }
 
 type UpdateUserRequest struct {

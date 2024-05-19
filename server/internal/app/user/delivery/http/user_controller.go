@@ -2,6 +2,7 @@ package user_http
 
 import (
 	user_middleware "github.com/TesyarRAz/penggerak/internal/app/user/delivery/http/middleware"
+	user_model "github.com/TesyarRAz/penggerak/internal/app/user/model"
 	user_usecase "github.com/TesyarRAz/penggerak/internal/app/user/usecase"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/gofiber/fiber/v2"
@@ -21,7 +22,7 @@ func NewUserController(useCase *user_usecase.UserUseCase, logger *logrus.Logger)
 }
 
 func (c *UserController) Login(ctx *fiber.Ctx) error {
-	var request model.LoginUserRequest
+	var request user_model.LoginUserRequest
 	if err := ctx.BodyParser(&request); err != nil {
 		c.Log.Warnf("Failed to parse request body : %+v", err)
 		return fiber.ErrBadRequest
@@ -32,13 +33,13 @@ func (c *UserController) Login(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*model.LoginUserResponse]{Data: response})
+	return ctx.JSON(model.WebResponse[*user_model.LoginUserResponse]{Data: response})
 }
 
 func (c *UserController) Me(ctx *fiber.Ctx) error {
 	auth := user_middleware.GetUser(ctx)
 
-	request := &model.GetUserRequest{
+	request := &user_model.GetUserRequest{
 		ID:         auth.ID,
 		IsDetailed: true,
 	}
@@ -48,7 +49,7 @@ func (c *UserController) Me(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*model.UserResponse]{Data: response})
+	return ctx.JSON(model.WebResponse[*user_model.UserResponse]{Data: response})
 }
 
 func (c *UserController) Logout(ctx *fiber.Ctx) error {

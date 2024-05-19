@@ -1,12 +1,16 @@
 package course_entity
 
-import "time"
+import (
+	"time"
+
+	"github.com/jmoiron/sqlx/types"
+)
 
 type SubModule struct {
-	ID        int        `json:"id"`
-	ModuleID  int        `json:"module_id"`
-	Name      string     `json:"name"`
-	Structure string     `json:"structure"`
-	CreatedAt *time.Time `json:"created_at"`
-	UpdatedAt *time.Time `json:"updated_at"`
+	ID        string         `json:"id" db:"id"`
+	ModuleID  string         `json:"module_id" db:"module_id"`
+	Name      string         `json:"name" db:"name"`
+	Structure types.JSONText `json:"structure" db:"structure"`
+	CreatedAt *time.Time     `json:"created_at" db:"created_at"`
+	UpdatedAt *time.Time     `json:"updated_at" db:"updated_at"`
 }
