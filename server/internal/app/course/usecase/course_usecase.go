@@ -42,7 +42,7 @@ func (c *CourseUseCase) List(ctx context.Context, request *model.PageRequest) ([
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, nil, errors.InternalServerError{}
+		return nil, nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
@@ -50,11 +50,11 @@ func (c *CourseUseCase) List(ctx context.Context, request *model.PageRequest) ([
 	pageInfo, err := c.CourseRepository.List(tx, &courses, request)
 	if err != nil {
 		c.Log.Warnf("Failed to list course : %+v", err)
-		return nil, nil, errors.InternalServerError{}
+		return nil, nil, errors.NewInternalServerError()
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, nil, errors.InternalServerError{}
+		return nil, nil, errors.NewInternalServerError()
 	}
 
 	return lop.Map(courses, func(course *course_entity.Course, _ int) *course_model.CourseResponse {
@@ -70,22 +70,23 @@ func (c *CourseUseCase) Create(ctx context.Context, request *course_model.Create
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	course := course_entity.Course{
-		Name:  request.Name,
-		Image: request.Image,
+		TeacherID: request.TeacherID,
+		Name:      request.Name,
+		Image:     request.Image,
 	}
 
 	if err = c.CourseRepository.Create(tx, &course); err != nil {
 		c.Log.Warnf("Failed to create course : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 
 	return course_converter.CourseToResponse(&course), nil
@@ -99,14 +100,14 @@ func (c *CourseUseCase) Update(ctx context.Context, request *course_model.Update
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	var course course_entity.Course
 	if err := c.CourseRepository.FindById(tx, &course, request.ID); err != nil {
 		c.Log.Warnf("Failed to find course : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 
 	course.Name = request.Name
@@ -114,11 +115,11 @@ func (c *CourseUseCase) Update(ctx context.Context, request *course_model.Update
 
 	if err = c.CourseRepository.Update(tx, &course); err != nil {
 		c.Log.Warnf("Failed to update course : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 
 	return course_converter.CourseToResponse(&course), nil
@@ -132,24 +133,24 @@ func (c *CourseUseCase) Delete(ctx context.Context, request *course_model.Delete
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return errors.InternalServerError{}
+		return errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	var course course_entity.Course
 	if err := c.CourseRepository.FindById(tx, &course, request.ID); err != nil {
 		c.Log.Warnf("Failed to find course : %+v", err)
-		return errors.NotFound{}
+		return errors.NewNotFound()
 	}
 
 	if err = c.CourseRepository.Delete(tx, &course); err != nil {
 		c.Log.Warnf("Failed to delete course : %+v", err)
-		return errors.InternalServerError{}
+		return errors.NewInternalServerError()
 	}
 
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return errors.InternalServerError{}
+		return errors.NewInternalServerError()
 	}
 
 	return nil
@@ -163,18 +164,18 @@ func (c *CourseUseCase) FindById(ctx context.Context, request *course_model.Find
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	var course course_entity.Course
 	if err := c.CourseRepository.FindById(tx, &course, request.ID); err != nil {
 		c.Log.Warnf("Failed to find course : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 
 	return course_converter.CourseToResponse(&course), nil

@@ -28,12 +28,9 @@ func (c *CourseController) List(ctx *fiber.Ctx) error {
 		c.Log.Warnf("Failed to parse query : %+v", err)
 		return fiber.ErrBadRequest
 	}
-	if request.Order == "" {
-		request.Order = "desc"
-	}
-	if request.PerPage == 0 {
-		request.PerPage = 10
-	}
+
+	request.GenerateDefault()
+
 	response, pageInfo, err := c.UseCase.List(ctx.UserContext(), &request)
 	if err != nil {
 		return err

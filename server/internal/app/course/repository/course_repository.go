@@ -33,6 +33,9 @@ func (c *CourseRepository) List(db *sqlx.Tx, entities *[]*course_entity.Course, 
 		Limit:   limit,
 		Request: request,
 		Table:   "courses",
+		SearchColumn: []string{
+			"name",
+		},
 		FnId: func(course *course_entity.Course) string {
 			return course.ID
 		},
@@ -62,7 +65,7 @@ func (c *CourseRepository) Create(db *sqlx.Tx, entity *course_entity.Course) err
 	now := time.Now()
 	entity.CreatedAt = &now
 
-	_, err := db.NamedExec("INSERT INTO courses (id, name, image, created_at) VALUES (:id, :name, :image, :created_at)", entity)
+	_, err := db.NamedExec("INSERT INTO courses (id, teacher_id, name, image, created_at) VALUES (:id, :teacher_id, :name, :image, :created_at)", entity)
 
 	return err
 }
@@ -91,4 +94,4 @@ func (c *CourseRepository) Update(db *sqlx.Tx, entity *course_entity.Course) err
 	return err
 }
 
-var _ repository.BaseActionRepository[course_entity.Course] = &CourseRepository{}
+var _ repository.BaseActionRepository[course_entity.Course, model.PageRequest] = &CourseRepository{}

@@ -7,10 +7,10 @@ import (
 )
 
 type SubModule struct {
-	ID        string         `json:"id" db:"id"`
-	ModuleID  string         `json:"module_id" db:"module_id"`
-	Name      string         `json:"name" db:"name"`
-	Structure types.JSONText `json:"structure" db:"structure"`
-	CreatedAt *time.Time     `json:"created_at" db:"created_at"`
-	UpdatedAt *time.Time     `json:"updated_at" db:"updated_at"`
+	ID        string         `db:"id"`
+	ModuleID  string         `db:"module_id"`
+	Name      string         `db:"name"`
+	Structure types.JSONText `db:"structure"`
+	CreatedAt *time.Time     `db:"created_at"`
+	UpdatedAt *time.Time     `db:"updated_at"`
 }

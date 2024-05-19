@@ -45,7 +45,7 @@ func (c *SubModuleUseCase) List(ctx context.Context, request *course_model.ListS
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, nil, errors.InternalServerError{}
+		return nil, nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
@@ -53,11 +53,11 @@ func (c *SubModuleUseCase) List(ctx context.Context, request *course_model.ListS
 	pageInfo, err := c.SubModuleRepository.List(tx, &submodules, request)
 	if err != nil {
 		c.Log.Warnf("Failed to list module : %+v", err)
-		return nil, nil, errors.InternalServerError{}
+		return nil, nil, errors.NewInternalServerError()
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, nil, errors.InternalServerError{}
+		return nil, nil, errors.NewInternalServerError()
 	}
 
 	return lop.Map(submodules, func(submodule *course_entity.SubModule, _ int) *course_model.SubModuleResponse {
@@ -73,7 +73,7 @@ func (c *SubModuleUseCase) Create(ctx context.Context, request *course_model.Cre
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
@@ -91,15 +91,15 @@ func (c *SubModuleUseCase) Create(ctx context.Context, request *course_model.Cre
 
 	if err := c.ModuleRepository.FindById(tx, &course_entity.Module{}, module.ModuleID); err != nil {
 		c.Log.Warnf("Failed to find module by id : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 	if err := c.SubModuleRepository.Create(tx, module); err != nil {
 		c.Log.Warnf("Failed to create submodule : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 
 	return course_converter.SubModuleToResponse(module), nil
@@ -113,29 +113,29 @@ func (c *SubModuleUseCase) Update(ctx context.Context, request *course_model.Upd
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	var entity course_entity.SubModule
 	if err := c.SubModuleRepository.FindById(tx, &entity, request.ID); err != nil {
 		c.Log.Warnf("Failed to find submodule : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 
 	if entity.ModuleID != request.ModuleID {
 		c.Log.Warnf("Submodule not found in module : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 
 	entity.Name = request.Name
 	if err := c.SubModuleRepository.Update(tx, &entity); err != nil {
 		c.Log.Warnf("Failed to update submodule : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 
 	return course_converter.SubModuleToResponse(&entity), nil
@@ -149,29 +149,29 @@ func (c *SubModuleUseCase) Delete(ctx context.Context, request *course_model.Del
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return errors.InternalServerError{}
+		return errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	var entity course_entity.SubModule
 	if err := c.SubModuleRepository.FindById(tx, &entity, request.ID); err != nil {
 		c.Log.Warnf("Failed to find submodule : %+v", err)
-		return errors.NotFound{}
+		return errors.NewNotFound()
 	}
 
 	if entity.ModuleID != request.ModuleID {
 		c.Log.Warnf("Submodule not found in module : %+v", err)
-		return errors.NotFound{}
+		return errors.NewNotFound()
 	}
 
 	if err := c.SubModuleRepository.Delete(tx, &entity); err != nil {
 		c.Log.Warnf("Failed to delete submodule : %+v", err)
-		return errors.InternalServerError{}
+		return errors.NewInternalServerError()
 	}
 
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return errors.InternalServerError{}
+		return errors.NewInternalServerError()
 	}
 
 	return nil
@@ -185,24 +185,24 @@ func (c *SubModuleUseCase) FindById(ctx context.Context, request *course_model.F
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	var entity course_entity.SubModule
 	if err := c.SubModuleRepository.FindById(tx, &entity, request.ID); err != nil {
 		c.Log.Warnf("Failed to find submodule : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 
 	if entity.ModuleID != request.ModuleID {
 		c.Log.Warnf("Submodule not found in module : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 
 	return course_converter.SubModuleToResponse(&entity), nil

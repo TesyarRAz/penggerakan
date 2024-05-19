@@ -7,44 +7,42 @@ import (
 )
 
 type ParamModuleRequest struct {
-	CourseID string `params:"course_id" validate:"required"`
+	CourseID string `params:"course_id" validate:"required" name:"course_id"`
 }
 
 type ListModuleRequest struct {
-	*ParamModuleRequest
+	ParamModuleRequest
 
-	*model.PageRequest
+	model.PageRequest
 }
 
 type ModuleResponse struct {
-	*ParamModuleRequest
-
 	ID        string     `json:"id"`
 	Name      string     `json:"name"`
 	CreatedAt *time.Time `json:"created_at"`
 }
 
 type CreateModuleRequest struct {
-	*ParamModuleRequest
+	ParamModuleRequest
 
-	Name string `json:"name" validate:"required,max=100"`
+	Name string `json:"name" validate:"required,max=100" name:"name"`
 }
 
 type UpdateModuleRequest struct {
-	*ParamModuleRequest
+	ParamModuleRequest
 
 	ID   string `params:"id" validate:"required"`
-	Name string `json:"name" validate:"required,max=100"`
+	Name string `json:"name" validate:"required,max=100" name:"name"`
 }
 
 type DeleteModuleRequest struct {
-	*ParamModuleRequest
+	ParamModuleRequest
 
-	ID string `json:"id" validate:"required"`
+	ID string `json:"id" validate:"required" name:"id"`
 }
 
 type FindModuleRequest struct {
 	ParamModuleRequest
 
-	ID string `json:"id" validate:"required"`
+	ID string `json:"id" validate:"required" name:"id"`
 }

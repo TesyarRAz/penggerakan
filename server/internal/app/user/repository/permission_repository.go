@@ -33,6 +33,35 @@ func (*PermissionRepository) CreateRole(db *sqlx.Tx, entity *user_entity.Role) (
 	return
 }
 
+func (*PermissionRepository) FindRoleByID(db *sqlx.Tx, entity *user_entity.Role, id string) (err error) {
+	err = db.Get(entity, "SELECT * FROM roles WHERE id = $1", id)
+
+	return
+}
+
+func (*PermissionRepository) FindRoleByName(db *sqlx.Tx, entity *user_entity.Role, name string) (err error) {
+	err = db.Get(entity, "SELECT * FROM roles WHERE name = $1", name)
+
+	return
+}
+
+func (*PermissionRepository) UserHasRoles(db *sqlx.Tx, userID string, roles ...string) (bool, error) {
+	query, args, err := sqlx.In("SELECT COUNT(*) FROM user_role WHERE user_id = ? AND role_id IN (?)", userID, roles)
+
+	if err != nil {
+		return false, err
+	}
+
+	query = db.Rebind(query)
+
+	var count int
+	if err := db.Get(&count, query, args...); err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}
+
 func (*PermissionRepository) DeleteRole(db *sqlx.Tx, entity *user_entity.Role) (err error) {
 	err = db.Select(entity, "DELETE FROM roles WHERE id = $1", entity.ID)
 
@@ -53,46 +82,51 @@ func (*PermissionRepository) DeletePermission(db *sqlx.Tx, entity *user_entity.P
 	return
 }
 
-func (*PermissionRepository) AttachPermissionToRole(db *sqlx.Tx, roleID, permissionID string) (err error) {
+func (*PermissionRepository) AttachPermissionToRole(db *sqlx.Tx, roleID string, permissionID string) (err error) {
 	_, err = db.Exec("INSERT INTO role_permission (role_id, permission_id) VALUES ($1, $2)", roleID, permissionID)
 
 	return
 }
 
-func (*PermissionRepository) DetachPermissionFromRole(db *sqlx.Tx, roleID, permissionID string) (err error) {
+func (*PermissionRepository) DetachPermissionFromRole(db *sqlx.Tx, roleID string, permissionID string) (err error) {
 	_, err = db.Exec("DELETE FROM role_permission WHERE role_id = $1 AND permission_id = $2", roleID, permissionID)
 
 	return
 }
 
-func (*PermissionRepository) AttachRoleToUser(db *sqlx.Tx, roleID, userID string) (err error) {
+func (*PermissionRepository) AttachRoleToUser(db *sqlx.Tx, roleID string, userID string) (err error) {
 	_, err = db.Exec("INSERT INTO user_role (role_id, user_id) VALUES ($1, $2)", roleID, userID)
 
 	return
 }
 
-func (*PermissionRepository) DetachRoleFromUser(db *sqlx.Tx, roleID, userID string) (err error) {
+func (*PermissionRepository) DetachRoleFromUser(db *sqlx.Tx, roleID string, userID string) (err error) {
 	_, err = db.Exec("DELETE FROM user_role WHERE role_id = $1 AND user_id = $2", roleID, userID)
 
 	return
 }
 
-func (*PermissionRepository) AttachPermissionToUser(db *sqlx.Tx, permissionID, userID string) (err error) {
+func (*PermissionRepository) AttachPermissionToUser(db *sqlx.Tx, permissionID string, userID string) (err error) {
 	_, err = db.Exec("INSERT INTO user_permission (permission_id, user_id) VALUES ($1, $2)", permissionID, userID)
 
 	return
 }
 
-func (*PermissionRepository) DetachPermissionFromUser(db *sqlx.Tx, permissionID, userID string) (err error) {
+func (*PermissionRepository) DetachPermissionFromUser(db *sqlx.Tx, permissionID string, userID string) (err error) {
 	_, err = db.Exec("DELETE FROM user_permission WHERE permission_id = $1 AND user_id = $2", permissionID, userID)
 
 	return
 }
 
 func (*PermissionRepository) PermissionsByRoles(db *sqlx.Tx, roles ...*user_entity.Role) error {
-	query, args, err := sqlx.In("SELECT rp.*, p.name as permission_name, r.name as role_name FROM role_permission rp JOIN permissions p ON p.id = rp.permission_id JOIN roles r ON r.id = rp.role_id WHERE rp.role_id IN (?)", lop.Map(roles, func(role *user_entity.Role, _ int) string {
+	if len(roles) == 0 {
+		return nil
+	}
+	roleIds := lop.Map(roles, func(role *user_entity.Role, _ int) string {
 		return role.ID
-	}))
+	})
+	roleIds = lo.Uniq(roleIds)
+	query, args, err := sqlx.In("SELECT rp.*, p.name as permission_name, r.name as role_name FROM role_permission rp JOIN permissions p ON p.id = rp.permission_id JOIN roles r ON r.id = rp.role_id WHERE rp.role_id IN (?)", roleIds)
 
 	if err != nil {
 		return err
@@ -122,9 +156,16 @@ func (*PermissionRepository) PermissionsByRoles(db *sqlx.Tx, roles ...*user_enti
 }
 
 func (*PermissionRepository) PermissionsByUsers(db *sqlx.Tx, users ...*user_entity.User) error {
-	query, args, err := sqlx.In("SELECT up.*, p.name as permission_name FROM user_permission up JOIN permissions p ON p.id = up.permission_id WHERE up.user_id IN (?)", lop.Map(users, func(user *user_entity.User, _ int) string {
+	if len(users) == 0 {
+		return nil
+	}
+	userIds := lop.Map(users, func(user *user_entity.User, _ int) string {
 		return user.ID
-	}))
+	})
+
+	userIds = lo.Uniq(userIds)
+
+	query, args, err := sqlx.In("SELECT up.*, p.name as permission_name FROM user_permission up JOIN permissions p ON p.id = up.permission_id WHERE up.user_id IN (?)", userIds)
 
 	if err != nil {
 		return err
@@ -154,9 +195,16 @@ func (*PermissionRepository) PermissionsByUsers(db *sqlx.Tx, users ...*user_enti
 }
 
 func (*PermissionRepository) RolesByUser(db *sqlx.Tx, users ...*user_entity.User) error {
-	query, args, err := sqlx.In("SELECT ur.*, p.name as role_name FROM user_role ur JOIN roles p ON p.id = ur.role_id WHERE ur.user_id IN (?)", lop.Map(users, func(user *user_entity.User, _ int) string {
+	if len(users) == 0 {
+		return nil
+	}
+
+	userIds := lop.Map(users, func(user *user_entity.User, _ int) string {
 		return user.ID
-	}))
+	})
+	userIds = lo.Uniq(userIds)
+
+	query, args, err := sqlx.In("SELECT ur.*, p.name as role_name FROM user_role ur JOIN roles p ON p.id = ur.role_id WHERE ur.user_id IN (?)", userIds)
 
 	if err != nil {
 		return err

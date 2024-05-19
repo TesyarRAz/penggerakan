@@ -18,8 +18,6 @@ type UserRepository struct {
 	repository.Repository
 }
 
-var _ repository.BaseActionRepository[user_entity.User] = &UserRepository{}
-
 func NewUserRepository(log *logrus.Logger, db *sqlx.DB) *UserRepository {
 	return &UserRepository{
 		Log: log,
@@ -27,8 +25,32 @@ func NewUserRepository(log *logrus.Logger, db *sqlx.DB) *UserRepository {
 	}
 }
 
-func (r *UserRepository) List(db *sqlx.Tx, entities *[]*user_entity.User, filter *model.PageRequest) (*model.PageMetadata, error) {
-	return nil, nil
+func (r *UserRepository) List(db *sqlx.Tx, entities *[]*user_entity.User, request *model.PageRequest) (*model.PageMetadata, error) {
+	limit := util.Clamp(request.PerPage, 1, 100)
+
+	result, pageInfo, err := repository.Paginate(&repository.PaginationConfig[user_entity.User]{
+		DB:      db,
+		Limit:   limit,
+		Request: request,
+		Table:   "users",
+		SearchColumn: []string{
+			"name", "email",
+		},
+		FnId: func(user *user_entity.User) string {
+			return user.ID
+		},
+		FnCreatedAt: func(user *user_entity.User) time.Time {
+			return *user.CreatedAt
+		},
+	})
+	if err != nil {
+		r.Log.Warnf("Failed to paginate user : %+v", err)
+		return nil, err
+	}
+
+	(*entities) = result
+
+	return pageInfo, err
 }
 
 func (r *UserRepository) Create(db *sqlx.Tx, entity *user_entity.User) (err error) {
@@ -36,7 +58,7 @@ func (r *UserRepository) Create(db *sqlx.Tx, entity *user_entity.User) (err erro
 	now := time.Now()
 	entity.CreatedAt = &now
 
-	_, err = db.NamedExec("INSERT INTO users (id, name, email, password, created_at) VALUES (:id, :name, :email, :password, :created_at)", entity)
+	_, err = db.NamedExec("INSERT INTO users (id, name, email, password, profile_image, created_at) VALUES (:id, :name, :email, :password, :profile_image, :created_at)", entity)
 
 	return
 }
@@ -67,7 +89,7 @@ func (r *UserRepository) Update(db *sqlx.Tx, entity *user_entity.User) (err erro
 	now := time.Now()
 	entity.UpdatedAt = &now
 
-	_, err = db.NamedExec("UPDATE users SET id = :id, name = :name, email = :email, password = :email, updated_at = :updated_at", entity)
+	_, err = db.NamedExec("UPDATE users SET name = :name, email = :email, password = :email, profile_image = :profile_image, updated_at = :updated_at WHERE id = :id", entity)
 
 	return
 }
@@ -78,3 +100,5 @@ func (r *UserRepository) Count(db *sqlx.Tx) (int64, error) {
 
 	return count, err
 }
+
+var _ repository.BaseActionRepository[user_entity.User, model.PageRequest] = &UserRepository{}

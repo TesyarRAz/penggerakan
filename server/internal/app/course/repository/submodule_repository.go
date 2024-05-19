@@ -63,6 +63,9 @@ func (m *SubModuleRepository) List(db *sqlx.Tx, entities *[]*course_entity.SubMo
 		Limit:   limit,
 		Request: &request.PageRequest,
 		Table:   "submodules",
+		SearchColumn: []string{
+			"name",
+		},
 		FnWhereBuilder: func(namedVar *map[string]interface{}) string {
 			(*namedVar)["module_id"] = request.ModuleID
 			return "module_id = :module_id"
@@ -92,3 +95,5 @@ func (m *SubModuleRepository) Update(db *sqlx.Tx, entity *course_entity.SubModul
 
 	return err
 }
+
+var _ repository.BaseActionRepository[course_entity.SubModule, course_model.ListSubModuleRequest] = &SubModuleRepository{}

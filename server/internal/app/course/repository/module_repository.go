@@ -61,8 +61,11 @@ func (m *ModuleRepository) List(db *sqlx.Tx, entities *[]*course_entity.Module, 
 	result, pageInfo, err := repository.Paginate(&repository.PaginationConfig[course_entity.Module]{
 		DB:      db,
 		Limit:   limit,
-		Request: request.PageRequest,
+		Request: &request.PageRequest,
 		Table:   "modules",
+		SearchColumn: []string{
+			"name",
+		},
 		FnWhereBuilder: func(namedVar *map[string]interface{}) string {
 			(*namedVar)["course_id"] = request.CourseID
 			return "course_id = :course_id"
@@ -92,3 +95,5 @@ func (m *ModuleRepository) Update(db *sqlx.Tx, entity *course_entity.Module) err
 
 	return err
 }
+
+var _ repository.BaseActionRepository[course_entity.Module, course_model.ListModuleRequest] = &ModuleRepository{}

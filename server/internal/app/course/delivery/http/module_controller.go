@@ -30,12 +30,9 @@ func (c *ModuleController) List(ctx *fiber.Ctx) error {
 		c.Log.Warnf("Failed to parse query : %+v", err)
 		return fiber.ErrBadRequest
 	}
-	if request.Order == "" {
-		request.Order = "desc"
-	}
-	if request.PerPage == 0 {
-		request.PerPage = 100
-	}
+	
+	request.GenerateDefault()
+
 	response, pageInfo, err := c.UseCase.List(ctx.UserContext(), &request)
 	if err != nil {
 		return err

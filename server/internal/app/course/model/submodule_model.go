@@ -8,18 +8,16 @@ import (
 )
 
 type ParamSubModuleRequest struct {
-	ModuleID string `params:"module_id" validate:"required"`
+	ModuleID string `params:"module_id" validate:"required" name:"module_id"`
 }
 
 type ListSubModuleRequest struct {
-	*ParamSubModuleRequest
+	ParamSubModuleRequest
 
 	model.PageRequest
 }
 
 type SubModuleResponse struct {
-	*ParamSubModuleRequest
-
 	ID        string          `json:"id"`
 	Name      string          `json:"name"`
 	Structure json.RawMessage `json:"structure"`
@@ -27,28 +25,28 @@ type SubModuleResponse struct {
 }
 
 type CreateSubModuleRequest struct {
-	*ParamSubModuleRequest
+	ParamSubModuleRequest
 
-	Name      string          `json:"name" validate:"required,max=100"`
-	Structure json.RawMessage `json:"structure" validate:"required,json"`
+	Name      string          `json:"name" validate:"required,max=100" name:"name"`
+	Structure json.RawMessage `json:"structure" validate:"required,json" name:"structure"`
 }
 
 type UpdateSubModuleRequest struct {
-	*ParamSubModuleRequest
+	ParamSubModuleRequest
 
-	ID        string          `json:"id" validate:"required"`
-	Name      string          `json:"name" validate:"required,max=100"`
-	Structure json.RawMessage `json:"structure" validate:"required,json"`
+	ID        string          `json:"id" validate:"required" name:"id"`
+	Name      string          `json:"name" validate:"required,max=100" name:"name"`
+	Structure json.RawMessage `json:"structure" validate:"required,json" name:"structure"`
 }
 
 type DeleteSubModuleRequest struct {
-	*ParamSubModuleRequest
+	ParamSubModuleRequest
 
-	ID string `json:"id" validate:"required"`
+	ID string `json:"id" validate:"required" name:"id"`
 }
 
 type FindSubModuleRequest struct {
 	ParamSubModuleRequest
 
-	ID string `json:"id" validate:"required"`
+	ID string `json:"id" validate:"required" name:"id"`
 }

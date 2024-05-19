@@ -12,12 +12,12 @@ type VerifyUserRequest struct {
 
 func NewVerifyUserRequestFromAuthorizationHeader(header string) (*VerifyUserRequest, error) {
 	if header == "" {
-		return nil, errors.Unauthorized{}
+		return nil, errors.NewUnathorized()
 	}
 
 	splitToken := strings.Split(header, " ")
 	if len(splitToken) != 2 || splitToken[0] != "Bearer" {
-		return nil, errors.Unauthorized{}
+		return nil, errors.NewUnathorized()
 	}
 
 	parsedToken := splitToken[1]

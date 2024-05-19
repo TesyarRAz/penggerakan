@@ -1,5 +1,6 @@
-CREATE TABLE IF NOT EXISTS public.courses (
+CREATE TABLE public.courses (
 	id uuid NOT NULL,
+	teacher_id uuid NOT NULL,
 	image varchar NULL,
 	"name" varchar NOT NULL,
 	created_at timestamp NOT NULL,

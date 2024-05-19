@@ -1,6 +1,6 @@
-CREATE TABLE IF NOT EXISTS public.permissions (
+CREATE TABLE public.permissions (
 	id uuid NOT NULL,
 	"name" varchar NOT NULL,
 	CONSTRAINT permissions_pk PRIMARY KEY (id),
-	CONSTRAINT permissions_unique UNIQUE (name)
+	CONSTRAINT permissions_unique UNIQUE ("name")
 );

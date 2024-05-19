@@ -50,9 +50,9 @@ func (a *Auth) ParseRoleAndPermission() error {
 	})
 
 	a.allPermissions = parseRolePermissions(permissions)
-	a.allPermissions = append(a.allPermissions, lo.FlatMap(a.roles, func(r *role, _ int) []*permission {
+	a.allPermissions = append(a.allPermissions, lo.Flatten(lop.Map(a.roles, func(r *role, _ int) []*permission {
 		return r.Permissions
-	})...)
+	}))...)
 
 	return nil
 }

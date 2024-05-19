@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
@@ -14,10 +15,11 @@ import (
 type Cursor map[string]interface{}
 
 type PaginationConfig[T any] struct {
-	DB      *sqlx.Tx
-	Table   string
-	Limit   int
-	Request *model.PageRequest
+	DB           *sqlx.Tx
+	Table        string
+	Limit        int
+	SearchColumn []string
+	Request      *model.PageRequest
 
 	FnWhereBuilder func(*map[string]interface{}) string
 
@@ -58,11 +60,18 @@ func Paginate[T any](config *PaginationConfig[T]) ([]*T, *model.PageMetadata, er
 		}
 	}
 
+	if config.Request.Search != "" && config.SearchColumn != nil {
+		if whereQuery != "" {
+			whereQuery = whereQuery + " AND "
+		}
+		whereQuery = whereQuery + fmt.Sprintf("to_tsvector(%s) @@ to_tsquery(:search) ", strings.Join(config.SearchColumn, " || ' ' || "))
+		namedVar["search"] = config.Request.Search
+	}
+
 	if whereQuery != "" {
 		query = query + "WHERE " + whereQuery
 	}
 
-	// Ini bisa aja di SQL Injection
 	query = query + " " + fmt.Sprintf("ORDER BY created_at %s LIMIT %v ", sortOrder, config.Limit+1)
 	query, args, err := config.DB.BindNamed(query, namedVar)
 	if err != nil {

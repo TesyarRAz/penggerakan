@@ -14,7 +14,16 @@ type PageRequest struct {
 	Order   string `query:"order" validate:"oneof=asc desc"`
 	Cursor  string `query:"cursor"`
 
-	*SearchRequest
+	SearchRequest
+}
+
+func (p *PageRequest) GenerateDefault() {
+	if p.Order == "" {
+		p.Order = "desc"
+	}
+	if p.PerPage == 0 {
+		p.PerPage = 10
+	}
 }
 
 type PageMetadata struct {

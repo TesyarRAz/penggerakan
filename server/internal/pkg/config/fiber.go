@@ -22,7 +22,7 @@ func NewFiber(config util.DotEnvConfig) *fiber.App {
 }
 func NewErrorHandler() fiber.ErrorHandler {
 	return func(ctx *fiber.Ctx, err error) error {
-		ers := make(map[string]string)
+		ers := make(map[string]interface{})
 		msg := err.Error()
 		code := fiber.StatusInternalServerError
 		if e, ok := err.(*fiber.Error); ok {
@@ -31,25 +31,27 @@ func NewErrorHandler() fiber.ErrorHandler {
 		if e, ok := err.(validator.ValidationErrors); ok {
 			msg = "Validation error"
 			for _, fe := range e {
-				ers[fe.Field()] = fe.Tag()
+				ers[fe.Field()] = fiber.Map{
+					"tag": fe.Tag(),
+					"val": fe.Param(),
+				}
 			}
 			code = fiber.StatusBadRequest
 		}
 		if _, ok := err.(errors.Unauthorized); ok {
 			code = fiber.StatusUnauthorized
-			msg = "Unauthorized"
 		}
 		if _, ok := err.(errors.NotFound); ok {
 			code = fiber.StatusNotFound
-			msg = "Not found"
 		}
 		if _, ok := err.(errors.InternalServerError); ok {
 			code = fiber.StatusInternalServerError
-			msg = "Internal server error"
 		}
 		if _, ok := err.(errors.BadRequest); ok {
 			code = fiber.StatusBadRequest
-			msg = "Bad request"
+		}
+		if _, ok := err.(errors.Conflict); ok {
+			code = fiber.StatusConflict
 		}
 
 		return ctx.Status(code).JSON(fiber.Map{

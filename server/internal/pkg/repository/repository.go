@@ -9,8 +9,8 @@ type Repository struct {
 	DB *sqlx.DB
 }
 
-type BaseActionRepository[T any] interface {
-	List(db *sqlx.Tx, entities *[]*T, request *model.PageRequest) (*model.PageMetadata, error)
+type BaseActionRepository[T any, S any] interface {
+	List(db *sqlx.Tx, entities *[]*T, request *S) (*model.PageMetadata, error)
 	Create(db *sqlx.Tx, entity *T) error
 	Update(db *sqlx.Tx, entity *T) error
 	Delete(db *sqlx.Tx, entity *T) error

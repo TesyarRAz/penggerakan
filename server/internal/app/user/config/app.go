@@ -8,14 +8,19 @@ import (
 	user_repository "github.com/TesyarRAz/penggerak/internal/app/user/repository"
 	user_usecase "github.com/TesyarRAz/penggerak/internal/app/user/usecase"
 	"github.com/TesyarRAz/penggerak/internal/pkg/config"
+	"github.com/TesyarRAz/penggerak/internal/pkg/service"
 )
 
 type App struct {
 	cfg *config.BootstrapConfig
 
-	userRepository       *user_repository.UserRepository
+	userRepository *user_repository.UserRepository
+	userUseCase    *user_usecase.UserUseCase
+
 	permissionRepository *user_repository.PermissionRepository
-	userUseCase          *user_usecase.UserUseCase
+
+	teacherRepository *user_repository.TeacherRepository
+	teacherUseCase    *user_usecase.TeacherUseCase
 }
 
 var _ config.App = &App{}
@@ -23,32 +28,41 @@ var _ config.App = &App{}
 func NewApp(cfg *config.BootstrapConfig) *App {
 	userRepository := user_repository.NewUserRepository(cfg.Log, cfg.DB)
 	permissionRepository := user_repository.NewPermissionRepository(cfg.Log, cfg.DB)
+	teacherRepository := user_repository.NewTeacherRepository(cfg.Log, cfg.DB)
 
 	userUseCase := user_usecase.NewUserUseCase(cfg.DB, cfg.Env, cfg.Log, cfg.Validate, userRepository, permissionRepository)
+	teacherUseCase := user_usecase.NewTeacherUseCase(cfg.DB, cfg.Env, cfg.Log, cfg.Validate, userRepository, teacherRepository)
 
 	return &App{
-		cfg:                  cfg,
-		userRepository:       userRepository,
+		cfg: cfg,
+
+		userRepository: userRepository,
+		userUseCase:    userUseCase,
+
 		permissionRepository: permissionRepository,
-		userUseCase:          userUseCase,
+
+		teacherRepository: teacherRepository,
+		teacherUseCase:    teacherUseCase,
 	}
 }
 
 func (a *App) Provider() config.Provider {
 	return config.Provider{
-		"auth": user_provider.NewAuthProvider(a.userUseCase),
+		service.AUTH_SERVICE: user_provider.NewAuthProvider(a.userUseCase),
 	}
 }
 
 func (a *App) Service(_ config.Provider) {
 	userController := user_http.NewUserController(a.userUseCase, a.cfg.Log)
+	teacherController := user_http.NewTeacherController(a.teacherUseCase, a.cfg.Log)
 
 	authMiddleware := user_middleware.NewAuth(a.userUseCase)
 
 	routeConfig := user_route.RouteConfig{
-		Fiber:          a.cfg.Fiber,
-		UserController: userController,
-		AuthMiddleware: authMiddleware,
+		Fiber:             a.cfg.Fiber,
+		UserController:    userController,
+		TeacherController: teacherController,
+		AuthMiddleware:    authMiddleware,
 	}
 
 	routeConfig.Setup()

@@ -10,18 +10,27 @@ import (
 func UserToResponse(user *user_entity.User, isDetailed bool) *user_model.UserResponse {
 	if !isDetailed {
 		return &user_model.UserResponse{
-			Email: user.Email,
-			Name:  user.Name,
+			ID:                  user.ID,
+			Email:               user.Email,
+			Name:                user.Name,
+			ProfileImage:        user.ProfileImage.String,
+			RoleResponses:       []*user_model.RoleResponse{},
+			PermissionResponses: []*user_model.PermissionResponse{},
 		}
 	}
 
 	return &user_model.UserResponse{
-		Email:     user.Email,
-		Name:      user.Name,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		ID:           user.ID,
+		Email:        user.Email,
+		Name:         user.Name,
+		ProfileImage: user.ProfileImage.String,
+		CreatedAt:    user.CreatedAt,
+		UpdatedAt:    user.UpdatedAt,
 		RoleResponses: lop.Map(user.Roles, func(role *user_entity.Role, _ int) *user_model.RoleResponse {
 			return RoleToResponse(role)
+		}),
+		PermissionResponses: lop.Map(user.Permissions, func(permission *user_entity.Permission, _ int) *user_model.PermissionResponse {
+			return PermissionToResponse(permission)
 		}),
 	}
 }

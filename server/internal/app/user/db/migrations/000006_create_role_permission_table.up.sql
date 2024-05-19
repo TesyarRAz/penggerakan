@@ -1,6 +1,8 @@
-CREATE TABLE IF NOT EXISTS public.role_permission (
+CREATE TABLE public.role_permission (
 	role_id uuid NOT NULL,
-	permission_id uuid NOT NULL
+	permission_id uuid NOT NULL,
+
+	CONSTRAINT role_permission_pk PRIMARY KEY (role_id, permission_id)
 );
 
 ALTER TABLE public.role_permission ADD CONSTRAINT role_permission_permissions_fk FOREIGN KEY (permission_id) REFERENCES public.permissions(id) ON DELETE CASCADE ON UPDATE CASCADE;

@@ -58,7 +58,7 @@ func (a *App) Service(providers config.Provider) {
 	moduleController := course_http.NewModuleController(a.moduleUseCase, a.cfg.Log)
 	subModuleController := course_http.NewSubModuleController(a.subModuleUseCase, a.cfg.Log)
 
-	authService := providers["auth"].(service.AuthService)
+	authService := providers[service.AUTH_SERVICE].(service.AuthService)
 
 	authMiddleware := course_middleware.NewAuth(&authService)
 

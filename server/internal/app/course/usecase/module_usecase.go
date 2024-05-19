@@ -44,7 +44,7 @@ func (c *ModuleUseCase) List(ctx context.Context, request *course_model.ListModu
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, nil, errors.InternalServerError{}
+		return nil, nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
@@ -52,11 +52,11 @@ func (c *ModuleUseCase) List(ctx context.Context, request *course_model.ListModu
 	pageInfo, err := c.ModuleRepository.List(tx, &modules, request)
 	if err != nil {
 		c.Log.Warnf("Failed to list module : %+v", err)
-		return nil, nil, errors.InternalServerError{}
+		return nil, nil, errors.NewInternalServerError()
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, nil, errors.InternalServerError{}
+		return nil, nil, errors.NewInternalServerError()
 	}
 
 	return lop.Map(modules, func(module *course_entity.Module, _ int) *course_model.ModuleResponse {
@@ -72,7 +72,7 @@ func (c *ModuleUseCase) Create(ctx context.Context, request *course_model.Create
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
@@ -83,15 +83,15 @@ func (c *ModuleUseCase) Create(ctx context.Context, request *course_model.Create
 
 	if err := c.CourseRepository.FindById(tx, &course_entity.Course{}, module.CourseID); err != nil {
 		c.Log.Warnf("Failed to find course by id : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 	if err := c.ModuleRepository.Create(tx, module); err != nil {
 		c.Log.Warnf("Failed to create module : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 
 	return course_converter.ModuleToResponse(module), nil
@@ -105,29 +105,29 @@ func (c *ModuleUseCase) Update(ctx context.Context, request *course_model.Update
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	var module course_entity.Module
 	if err := c.ModuleRepository.FindById(tx, &module, request.ID); err != nil {
 		c.Log.Warnf("Failed to find module : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 
 	module.Name = request.Name
 	if err := c.ModuleRepository.Update(tx, &module); err != nil {
 		c.Log.Warnf("Failed to update module : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	if module.CourseID != request.CourseID {
 		c.Log.Warnf("Module not found in course : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 
 	return course_converter.ModuleToResponse(&module), nil
@@ -141,29 +141,29 @@ func (c *ModuleUseCase) Delete(ctx context.Context, request *course_model.Delete
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return errors.InternalServerError{}
+		return errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	var module course_entity.Module
 	if err := c.ModuleRepository.FindById(tx, &module, request.ID); err != nil {
 		c.Log.Warnf("Failed to find module : %+v", err)
-		return errors.NotFound{}
+		return errors.NewNotFound()
 	}
 
 	if module.CourseID != request.CourseID {
 		c.Log.Warnf("Module not found in course : %+v", err)
-		return errors.NotFound{}
+		return errors.NewNotFound()
 	}
 
 	if err := c.ModuleRepository.Delete(tx, &module); err != nil {
 		c.Log.Warnf("Failed to delete module : %+v", err)
-		return errors.InternalServerError{}
+		return errors.NewInternalServerError()
 	}
 
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return errors.InternalServerError{}
+		return errors.NewInternalServerError()
 	}
 
 	return nil
@@ -177,24 +177,24 @@ func (c *ModuleUseCase) FindById(ctx context.Context, request *course_model.Find
 	tx, err := c.DB.BeginTxx(ctx, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to begin transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 	defer tx.Rollback()
 
 	var module course_entity.Module
 	if err := c.ModuleRepository.FindById(tx, &module, request.ID); err != nil {
 		c.Log.Warnf("Failed to find module : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 
 	if module.CourseID != request.CourseID {
 		c.Log.Warnf("Module not found in course : %+v", err)
-		return nil, errors.NotFound{}
+		return nil, errors.NewNotFound()
 	}
 
 	if err := tx.Commit(); err != nil {
 		c.Log.Warnf("Failed to commit transaction : %+v", err)
-		return nil, errors.InternalServerError{}
+		return nil, errors.NewInternalServerError()
 	}
 
 	return course_converter.ModuleToResponse(&module), nil

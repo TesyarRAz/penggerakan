@@ -21,11 +21,16 @@ func NewAuth(userUserCase *user_usecase.UserUseCase) fiber.Handler {
 			return fiber.ErrUnauthorized
 		}
 
+		if err := auth.ParseRoleAndPermission(); err != nil {
+			return fiber.ErrUnauthorized
+		}
+
 		ctx.Locals("auth", auth)
+
 		return ctx.Next()
 	}
 }
 
-func GetUser(ctx *fiber.Ctx) *model.Auth {
+func GetAuth(ctx *fiber.Ctx) *model.Auth {
 	return ctx.Locals("auth").(*model.Auth)
 }

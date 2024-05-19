@@ -2,11 +2,11 @@ package course_entity
 
 import "time"
 
-type Course struct {
+type ContentPage struct {
 	ID        string     `db:"id"`
-	TeacherID string     `db:"teacher_id"`
-	Name      string     `db:"name"`
-	Image     string     `db:"image"`
+	CourseID  string     `db:"course_id"`
+	Title     string     `db:"title"`
+	Content   string     `db:"content"`
 	CreatedAt *time.Time `db:"created_at"`
 	UpdatedAt *time.Time `db:"updated_at"`
 }
