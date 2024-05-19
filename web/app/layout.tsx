@@ -28,10 +28,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-          <Navbar className="mt-5 mb-5 mx-4" />
-          <div className="container py-5">
-            {children}
-          </div>
+          {children}
         </ThemeProvider>
       </body>
     </html>
