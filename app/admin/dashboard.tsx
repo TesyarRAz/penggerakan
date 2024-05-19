@@ -83,7 +83,7 @@ const Dashboard = () => {
           Home Page
         </h2>
       </div>
-      <div className="flex-1 pt-16 h-40 mt-5 mx-40 rounded-lg bg-gray-200 mb-5">
+      <div className="flex-1 pt-16 h-48 mt-5 mx-40 rounded-3xl bg-gray-200 mb-5">
         {/* carrousel conten */}
         <Carrousel items={carrouselItems}></Carrousel>
       </div>

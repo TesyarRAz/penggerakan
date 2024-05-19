@@ -2,37 +2,21 @@
 
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
-import { IconContext, IconType } from "react-icons";
-import { FaBook } from "react-icons/fa";
-import { FaPeopleGroup } from "react-icons/fa6";
-import { GiTeacher } from "react-icons/gi";
-import { IoSettingsSharp } from "react-icons/io5";
+import { IconType } from "react-icons";
+import { FaAngleUp, FaAngleDown } from "react-icons/fa";
+
 import { LuChevronFirst, LuChevronLast } from "react-icons/lu";
-import { MdDashboard } from "react-icons/md";
-import { PiStudentFill } from "react-icons/pi";
 
-const titles: string[] = [
-  "Dashboard",
-  "Course",
-  "Student",
-  "Teacher",
-  "User",
-  "Policy",
-];
-const icons: IconType[] = [
-  MdDashboard,
-  FaBook,
-  PiStudentFill,
-  GiTeacher,
-  FaPeopleGroup,
-  IoSettingsSharp,
-];
+interface SidebarProps {
+  titles: string[];
+  icons: IconType[];
+}
 
-const SidebarLeft = () => {
+function SidebarLeft({ titles, icons }: SidebarProps) {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [expanded, setExpanded] = useState(true);
   const [themeDark, setThemeDark] = useState(true);
-
+  const [subOpened, setSubmenuOpen] = useState(false);
   useEffect(() => {
     if (window.matchMedia("prefers-color-scheme:dark").matches) {
       setThemeDark(true);
@@ -89,34 +73,68 @@ const SidebarLeft = () => {
 
         {/* sidebar item*/}
         <ul className="flex-1 px-2 my-3">
-          {titles.map((title, index) => (
-            <li
-              key={title}
-              className={`relative flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors group ${
-                selectedIndex === index
-                  ? " bg-gradient-to-tr from-teal-200 to-teal-300 rounded-lg transition-colors duration-500"
-                  : " hover:bg-gradient-to-br from-blue-200 to-blue-300 hover:text-blue-700"
-              }`}
-              onClick={() => {
-                setSelectedIndex(index);
-              }}
-            >
-              <Link href={"#"} className="flex items-center">
-                {React.createElement(icons[index], {
-                  className: expanded
-                    ? "w-5 h-5 dark:text-white"
-                    : "w-6 h-6 ml-2 dark:text-white",
-                })}
-                <span
-                  className={`overflow-hidden transition-all dark:text-white ${
-                    expanded ? "w-52 ml-3" : "w-0"
+          {titles.map((title, index) => {
+            const isLast = titles.length - 1;
+            if (index === isLast) {
+              return (
+                <li
+                  key={title}
+                  className={`relative flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors group ${
+                    selectedIndex === index
+                      ? " bg-gradient-to-tr from-teal-200 to-teal-300 rounded-lg transition-colors duration-500"
+                      : " hover:bg-gradient-to-br from-blue-200 to-blue-300 hover:text-blue-700"
                   }`}
+                  onClick={() => {
+                    setSelectedIndex(index);
+                  }}
                 >
-                  {title}
-                </span>
-              </Link>
-            </li>
-          ))}
+                  <Link href={"#"} className="flex items-center">
+                    {React.createElement(icons[index], {
+                      className: expanded
+                        ? "w-5 h-5 dark:text-white"
+                        : "w-6 h-6 ml-2 dark:text-white",
+                    })}
+                    <span
+                      className={`overflow-hidden transition-all dark:text-white ${
+                        expanded ? "w-52 ml-3" : "w-0"
+                      }`}
+                    >
+                      {title}
+                    </span>
+                    {expanded ? <FaAngleDown /> : ""}
+                  </Link>
+                </li>
+              );
+            }
+            return (
+              <li
+                key={title}
+                className={`relative flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors group ${
+                  selectedIndex === index
+                    ? " bg-gradient-to-tr from-teal-200 to-teal-300 rounded-lg transition-colors duration-500"
+                    : " hover:bg-gradient-to-br from-blue-200 to-blue-300 hover:text-blue-700"
+                }`}
+                onClick={() => {
+                  setSelectedIndex(index);
+                }}
+              >
+                <Link href={"#"} className="flex items-center">
+                  {React.createElement(icons[index], {
+                    className: expanded
+                      ? "w-5 h-5 dark:text-white"
+                      : "w-6 h-6 ml-2 dark:text-white",
+                  })}
+                  <span
+                    className={`overflow-hidden transition-all dark:text-white ${
+                      expanded ? "w-52 ml-3" : "w-0"
+                    }`}
+                  >
+                    {title}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
         {/* footer sidebar(optional setting button) */}
         <div className="mb-5 ml-3 transition-all">
@@ -127,6 +145,6 @@ const SidebarLeft = () => {
       </nav>
     </aside>
   );
-};
+}
 
 export default SidebarLeft;

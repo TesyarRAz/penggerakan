@@ -24,7 +24,7 @@ const LoginPage = () => {
   }, [themeDark]);
 
   return (
-    <section className="bg-gradient-to-r from-gray-900 to-black">
+    <section className="bg-gradient-to-r from-black to-gray-200">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
         <a
           href="#"
@@ -50,7 +50,7 @@ const LoginPage = () => {
                 }}
               >
                 {themeDark ? (
-                  <FaMoon className="flex-1 text-white w-8 h-8 hover:bg-white p-1 hover:rounded-lg hover:text-black" />
+                  <FaMoon className="flex-1 text-white w-8 h-8 p-1 hover:bg-white hover:rounded-lg hover:text-black" />
                 ) : (
                   <MdOutlineWbSunny className="flex-1 text-black w-8 h-8 p-0.5 hover:bg-black hover:rounded-lg hover:text-white" />
                 )}
@@ -124,7 +124,7 @@ const LoginPage = () => {
                 </div>
                 <a
                   href="#"
-                  className="text-sm font-medium text-white hover:underline"
+                  className="text-sm font-medium text-black hover:underline dark:text-white"
                 >
                   Forgot password?
                 </a>

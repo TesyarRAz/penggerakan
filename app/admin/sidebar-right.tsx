@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { FaMoon } from "react-icons/fa";
-import { IoIosSunny } from "react-icons/io";
+import { MdOutlineWbSunny } from "react-icons/md";
 
 const SidebarRight = () => {
   const [themeDark, setThemeDark] = useState(true);
@@ -40,14 +40,15 @@ const SidebarRight = () => {
             </div>
             <div>
               <button
+                className="w-8 h-8 p-1"
                 onClick={() => {
                   setThemeDark(!themeDark);
                 }}
               >
                 {themeDark ? (
-                  <FaMoon className="text-white" />
+                  <FaMoon className="text-white  hover:text-black w-5 h-5" />
                 ) : (
-                  <IoIosSunny className="text-black" />
+                  <MdOutlineWbSunny className="text-black  hover:text-white w-5 h-5" />
                 )}
               </button>
             </div>
