@@ -1,6 +1,8 @@
 package user_http
 
 import (
+	"net/http"
+
 	user_middleware "github.com/TesyarRAz/penggerak/internal/app/user/delivery/http/middleware"
 	user_policy "github.com/TesyarRAz/penggerak/internal/app/user/delivery/http/policy"
 	user_model "github.com/TesyarRAz/penggerak/internal/app/user/model"
@@ -87,7 +89,7 @@ func (c *UserController) Create(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(response)
+	return ctx.Status(http.StatusCreated).JSON(response)
 }
 
 func (c *UserController) Update(ctx *fiber.Ctx) error {

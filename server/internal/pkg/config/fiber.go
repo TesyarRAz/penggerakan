@@ -14,15 +14,15 @@ func NewFiber(config model.DotEnvConfig) *fiber.App {
 	prefork, _ := strconv.ParseBool(config["WEB_PREFORK"])
 
 	app := fiber.New(fiber.Config{
-		AppName:      config["APP_NAME"],
+		AppName:      config.AppID(),
 		ErrorHandler: NewErrorHandler(),
 		Prefork:      prefork,
 	})
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000",
-		AllowHeaders: "*",
-		AllowMethods: "GET, POST, PUT, DELETE",
+		AllowOrigins: config.CorsAllowOrigins(),
+		AllowHeaders: config.CorsAllowHeaders(),
+		AllowMethods: config.CorsAllowMethods(),
 	}))
 
 	return app

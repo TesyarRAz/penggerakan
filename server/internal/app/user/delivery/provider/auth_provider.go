@@ -14,9 +14,6 @@ type AuthProvider struct {
 	UseCase *user_usecase.UserUseCase
 }
 
-var _ service.AuthService = &AuthProvider{}
-var _ config.ServiceProvider = &AuthProvider{}
-
 func NewAuthProvider(useCase *user_usecase.UserUseCase) *AuthProvider {
 	return &AuthProvider{
 		UseCase: useCase,
@@ -30,3 +27,6 @@ func (a *AuthProvider) Boot() {
 func (a *AuthProvider) Verify(ctx context.Context, request *shared_model.VerifyUserRequest) (*model.Auth, error) {
 	return a.UseCase.Verify(ctx, request)
 }
+
+var _ service.AuthService = &AuthProvider{}
+var _ config.ServiceProvider = &AuthProvider{}

@@ -8,7 +8,7 @@ import { JWT } from "next-auth/jwt";
 const refreshToken = async (token: JWT): Promise<JWT> => {
     try {
         const response = await axios.post("/auth/refresh", {
-            refresh_token: token.token.refresh_token,
+            refresh_token: token.refresh_token,
         })
 
         if (response.status !== 200) {
@@ -20,7 +20,7 @@ const refreshToken = async (token: JWT): Promise<JWT> => {
 
         return {
             ...token,
-            token: response.data,
+            ...response.data,
         }
     } catch (error) {
         return {
@@ -45,7 +45,12 @@ export const authOptions: NextAuthOptions = {
                 try {
                     const response = await axios.post("/auth/login", request)
 
-                    return response.data
+                    const { user, token } = response.data
+
+                    return {
+                        ...user,
+                        token,
+                    }
                 } catch (error: any) {
                     if (error?.response?.status === 401) {
                         throw new Error("Invalid credentials")
@@ -60,25 +65,24 @@ export const authOptions: NextAuthOptions = {
     callbacks: {
         jwt: async ({ token, user }) => {
             if (user) {
-                return { ...token, ...user, }
+                return {
+                    ...token,
+                    ...user.token,
+                    user,
+                }
             }
 
-            if (new Date().getTime() < token.token.access_token_expires) {
+            if (new Date().getTime() / 1000 < token.access_token_exp ?? 0) {
                 return token
             }
-
-            console.log("Refresh")
 
             return await refreshToken(token)
         },
         session: async ({ session, token }) => {
-            session.user = token.user
-            session.token = token.token
-            session.error = token.error
+            session.token = token
 
             return {
                 ...session,
-                ...token,
             }
         },
     },

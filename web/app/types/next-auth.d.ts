@@ -3,31 +3,35 @@ import "next-auth/jwt"
 
 interface Token {
     access_token: string
-    access_token_expires: number
+    access_token_exp: number
     refresh_token: string
 }
 
+interface User {
+    id?: string | null
+    email?: string | null
+    name?: string | null
+    roles?: Role[] | null
+    permissions?: Permission[] | null
+}
+
+type _AppUser = User
+
 declare module "next-auth" {
     interface Session {
-        error?: "RefreshAccessTokenError"
-
+        user: User
         token: Token
     }
 
-    interface User {
-        id: string
-        email: string
-        name: string
-        roles: Role[]
-        permissions: Permission[]
+    interface User extends _AppUser {
+        token?: Token
     }
 }
 
 declare module "next-auth/jwt" {
     interface JWT extends Token {
-        error?: "RefreshAccessTokenError"
+        user: _AppUser
 
-        user: User
-        token: Token
+        error?: "RefreshAccessTokenError"
     }
 }

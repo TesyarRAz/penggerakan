@@ -32,6 +32,11 @@ interface Permission {
     name: string
 }
 
+interface LoginResponse {
+    user: User
+    token: Token
+}
+
 interface CourseResponse {
     id: string
     teacher_id: string
@@ -49,4 +54,14 @@ interface CreateCourseRequest {
 interface EditCourseRequest {
     name: string
     image: string
+}
+
+interface UserResponse {
+    id: string
+    name: string
+    profile_image: string
+    email: string
+    roles: Role[]
+    permissions: Permission[]
+    created_at: string
 }

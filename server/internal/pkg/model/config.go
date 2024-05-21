@@ -96,3 +96,15 @@ func (d DotEnvConfig) RedisPort() int {
 func (d DotEnvConfig) RedisPassword() string {
 	return d["REDIS_PASSWORD"]
 }
+
+func (d DotEnvConfig) CorsAllowOrigins() string {
+	return d["CORS_ALLOW_ORIGINS"]
+}
+
+func (d DotEnvConfig) CorsAllowHeaders() string {
+	return d["CORS_ALLOW_HEADERS"]
+}
+
+func (d DotEnvConfig) CorsAllowMethods() string {
+	return d["CORS_ALLOW_METHODS"]
+}

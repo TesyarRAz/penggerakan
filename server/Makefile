@@ -4,7 +4,11 @@ generate-app-key:
 
 compile:
 	@echo "Compile Monolith"
-	@go build -o dist/bin/monolith/monolith.exe cmd/monolith/main.go
+	@go build -o dist/bin/monolith cmd/monolith/main.go
+	@echo "Compile Migration"
+	@go build -o dist/bin/migration_monolith cmd/migration_monolith/main.go
+	@echo "Compile generate app key"
+	@go build -o dist/bin/generate_app_key cmd/generate_app_key/main.go
 
 serve:
 	@echo "Running the server"
