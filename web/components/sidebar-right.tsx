@@ -2,12 +2,13 @@
 
 import { cn } from "@/lib/utils";
 import { Session } from "next-auth";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { FaMoon } from "react-icons/fa";
 import { IoIosSunny } from "react-icons/io";
+import { Button } from "./ui/button";
 
 interface SidebarRightProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -52,6 +53,10 @@ const SidebarRight = ({
             </button>
           </div>
         </div>
+
+        <Button onClick={() => signOut()}>
+          Logout
+          </Button>
       </nav>
     </aside>
   );

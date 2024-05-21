@@ -16,7 +16,7 @@ const Container = ({
     <>
       <SidebarLeft className="fixed" expanded={expanded} onExpanded={setExpanded} />
       <SidebarRight className="fixed right-0 z-10" />
-      <main className={cn(expanded ? "ml-52" : "ml-20", "mr-64 pt-5 px-5")}>
+      <main className={cn(expanded ? "ml-52" : "ml-20", "mr-64 pt-10 px-5")}>
         {children}
       </main>
     </>

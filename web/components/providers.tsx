@@ -10,7 +10,7 @@ interface ProvidersProps {
 
 const Providers = ({ children }: ProvidersProps) => {
   return (
-    <SessionProvider>
+    <SessionProvider refetchInterval={5 * 60}>
       <ThemeProvider
         attribute="class"
         defaultTheme="system"

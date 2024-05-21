@@ -67,6 +67,8 @@ export const authOptions: NextAuthOptions = {
                 return token
             }
 
+            console.log("Refresh")
+
             return await refreshToken(token)
         },
         session: async ({ session, token }) => {
@@ -78,9 +80,6 @@ export const authOptions: NextAuthOptions = {
                 ...session,
                 ...token,
             }
-        },
-        signIn: ({ user }) => {
-            return user == null
         },
     },
     session: {

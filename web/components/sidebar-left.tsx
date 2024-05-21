@@ -139,13 +139,13 @@ const MenuItem = ({ pathActive, href, title, icon, expanded, roles, permissions 
     <li
       key={title}
       className={cn(
-        "relative flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors group",
+        "my-1 font-medium rounded-md cursor-pointer transition-colors group",
         pathActive.includes(pathname)
           ? " bg-gradient-to-tr from-teal-200 to-teal-300 rounded-lg transition-colors duration-500"
           : " hover:bg-gradient-to-br from-blue-200 to-blue-300 hover:text-blue-700"
       )}
     >
-      <Link href={href} className="flex items-center">
+      <Link href={href} className="flex items-center h-full w-full  py-2 px-3">
         {React.createElement(icon, {
           className: expanded
             ? "w-5 h-5 dark:text-white"
@@ -153,8 +153,8 @@ const MenuItem = ({ pathActive, href, title, icon, expanded, roles, permissions 
         })}
         <span
           className={cn(
-            "overflow-hidden transition-all dark:text-white",
-            expanded ? "w-52 ml-3" : "w-0"
+            "transition-all dark:text-white",
+            expanded ? "ml-3" : "w-0"
           )}
         >
           {title}

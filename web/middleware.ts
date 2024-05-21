@@ -8,8 +8,10 @@ export default withAuth(
         const { pathname } = req.nextUrl
 
 
-        if (token && pathname.startsWith("/auth/signin")) {
-            return NextResponse.redirect(new URL("/dashboard", req.url))
+        if (token) {
+            if (pathname.startsWith("/auth/signin") || pathname == "/") {
+                return NextResponse.redirect(new URL("/dashboard", req.url))
+            }
         }
     },
     {

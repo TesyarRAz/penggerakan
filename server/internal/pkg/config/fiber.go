@@ -7,6 +7,7 @@ import (
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func NewFiber(config model.DotEnvConfig) *fiber.App {
@@ -17,6 +18,12 @@ func NewFiber(config model.DotEnvConfig) *fiber.App {
 		ErrorHandler: NewErrorHandler(),
 		Prefork:      prefork,
 	})
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",
+		AllowHeaders: "*",
+		AllowMethods: "GET, POST, PUT, DELETE",
+	}))
 
 	return app
 }
