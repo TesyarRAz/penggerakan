@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	user_model "github.com/TesyarRAz/penggerak/internal/app/user/model"
-	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,9 +15,9 @@ func TestLogin(t *testing.T) {
 	requestBody, response, responseBody := GetAdmin(t)
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
-	assert.Equal(t, requestBody.Email, responseBody.Data.Email)
-	assert.NotNil(t, responseBody.Data.Token)
-	assert.NotNil(t, responseBody.Data.CreatedAt)
+	assert.Equal(t, requestBody.Email, responseBody.Email)
+	assert.NotNil(t, responseBody.AccessToken)
+	assert.NotNil(t, responseBody.CreatedAt)
 }
 
 func TestMe(t *testing.T) {
@@ -35,12 +34,12 @@ func TestMe(t *testing.T) {
 	bytes, err := io.ReadAll(response.Body)
 	assert.Nil(t, err)
 
-	responseBody := new(model.WebResponse[user_model.LoginUserResponse])
-	err = json.Unmarshal(bytes, responseBody)
+	var responseBody user_model.LoginUserResponse
+	err = json.Unmarshal(bytes, &responseBody)
 	assert.Nil(t, err)
 
 	assert.Equal(t, http.StatusOK, response.StatusCode)
-	assert.NotNil(t, responseBody.Data.ID)
-	assert.NotNil(t, responseBody.Data.Email)
-	assert.NotNil(t, responseBody.Data.CreatedAt)
+	assert.NotNil(t, responseBody.ID)
+	assert.NotNil(t, responseBody.Email)
+	assert.NotNil(t, responseBody.CreatedAt)
 }

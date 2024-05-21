@@ -42,12 +42,24 @@ func GenerateRandomStringURLSafe(n int) (string, error) {
 func main() {
 	dotenv := config.NewDotEnv()
 
-	randomString, err := GenerateRandomStringURLSafe(64)
+	appId, err := GenerateRandomStringURLSafe(64)
 	if err != nil {
 		panic(err)
 	}
 
-	dotenv["APP_ID"] = randomString
+	jwtSecret, err := GenerateRandomStringURLSafe(64)
+	if err != nil {
+		panic(err)
+	}
+
+	jwtRefreshSecret, err := GenerateRandomStringURLSafe(64)
+	if err != nil {
+		panic(err)
+	}
+
+	dotenv["APP_ID"] = appId
+	dotenv["JWT_SECRET"] = jwtSecret
+	dotenv["JWT_REFRESH_SECRET"] = jwtRefreshSecret
 
 	godotenv.Write(dotenv, ".env")
 }

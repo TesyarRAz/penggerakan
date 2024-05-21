@@ -9,7 +9,6 @@ import (
 	course_repository "github.com/TesyarRAz/penggerak/internal/app/course/repository"
 	"github.com/TesyarRAz/penggerak/internal/pkg/errors"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
 	lop "github.com/samber/lo/parallel"
@@ -18,13 +17,13 @@ import (
 
 type CourseUseCase struct {
 	DB               *sqlx.DB
-	Config           util.DotEnvConfig
+	Config           model.DotEnvConfig
 	Log              *logrus.Logger
 	Validate         *validator.Validate
 	CourseRepository *course_repository.CourseRepository
 }
 
-func NewCourseUseCase(db *sqlx.DB, dotenvcfg util.DotEnvConfig, logger *logrus.Logger, validate *validator.Validate, courseRepository *course_repository.CourseRepository) *CourseUseCase {
+func NewCourseUseCase(db *sqlx.DB, dotenvcfg model.DotEnvConfig, logger *logrus.Logger, validate *validator.Validate, courseRepository *course_repository.CourseRepository) *CourseUseCase {
 	return &CourseUseCase{
 		DB:               db,
 		Config:           dotenvcfg,

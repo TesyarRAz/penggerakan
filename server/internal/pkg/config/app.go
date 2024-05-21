@@ -1,10 +1,11 @@
 package config
 
 import (
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
+	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 )
 
@@ -13,7 +14,8 @@ type BootstrapConfig struct {
 	DB       *sqlx.DB
 	Log      *logrus.Logger
 	Validate *validator.Validate
-	Env      util.DotEnvConfig
+	Env      model.DotEnvConfig
+	Redis    *redis.Client
 }
 
 type App interface {

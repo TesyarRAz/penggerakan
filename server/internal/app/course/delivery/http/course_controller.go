@@ -51,7 +51,7 @@ func (c *CourseController) Create(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(http.StatusCreated).JSON(model.WebResponse[*course_model.CourseResponse]{Data: response})
+	return ctx.Status(http.StatusCreated).JSON(response)
 }
 
 func (c *CourseController) Update(ctx *fiber.Ctx) error {
@@ -70,7 +70,7 @@ func (c *CourseController) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*course_model.CourseResponse]{Data: response})
+	return ctx.JSON(response)
 }
 
 func (c *CourseController) Delete(ctx *fiber.Ctx) error {
@@ -86,7 +86,7 @@ func (c *CourseController) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[any]{
+	return ctx.JSON(model.WebResponse{
 		Message: "Course deleted successfully",
 	})
 }
@@ -103,5 +103,5 @@ func (c *CourseController) FindById(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*course_model.CourseResponse]{Data: response})
+	return ctx.JSON(response)
 }

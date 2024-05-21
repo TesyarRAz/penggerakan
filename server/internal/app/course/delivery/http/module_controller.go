@@ -30,7 +30,7 @@ func (c *ModuleController) List(ctx *fiber.Ctx) error {
 		c.Log.Warnf("Failed to parse query : %+v", err)
 		return fiber.ErrBadRequest
 	}
-	
+
 	request.GenerateDefault()
 
 	response, pageInfo, err := c.UseCase.List(ctx.UserContext(), &request)
@@ -58,7 +58,7 @@ func (c *ModuleController) Create(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(model.WebResponse[*course_model.ModuleResponse]{Data: response})
+	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
 func (c *ModuleController) Update(ctx *fiber.Ctx) error {
@@ -77,7 +77,7 @@ func (c *ModuleController) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*course_model.ModuleResponse]{Data: response})
+	return ctx.JSON(response)
 }
 
 func (c *ModuleController) Delete(ctx *fiber.Ctx) error {
@@ -92,7 +92,7 @@ func (c *ModuleController) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[any]{
+	return ctx.JSON(model.WebResponse{
 		Message: "Module deleted successfully",
 	})
 }
@@ -109,5 +109,5 @@ func (c *ModuleController) FindById(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*course_model.ModuleResponse]{Data: response})
+	return ctx.JSON(response)
 }

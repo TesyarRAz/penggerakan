@@ -5,22 +5,23 @@ import (
 )
 
 type UserResponse struct {
-	ID           string     `json:"id"`
-	Email        string     `json:"email"`
-	Name         string     `json:"name"`
-	ProfileImage string     `json:"profile_image"`
-	CreatedAt    *time.Time `json:"created_at,omitempty"`
-	UpdatedAt    *time.Time `json:"updated_at,omitempty"`
+	ID           string `json:"id"`
+	Email        string `json:"email"`
+	Name         string `json:"name"`
+	ProfileImage string `json:"profile_image"`
 
 	RoleResponses       []*RoleResponse       `json:"roles"`
 	PermissionResponses []*PermissionResponse `json:"permissions"`
+
+	CreatedAt *time.Time `json:"created_at"`
+	UpdatedAt *time.Time `json:"updated_at"`
 }
 
 type RoleResponse struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 
-	PermissionResponses []*PermissionResponse `json:"permissions,omitempty"`
+	PermissionResponses []*PermissionResponse `json:"permissions"`
 }
 
 type PermissionResponse struct {
@@ -33,17 +34,20 @@ type LoginUserRequest struct {
 	Password string `json:"password" validate:"required,max=100" name:"password"`
 }
 
+type TokenResponse struct {
+	AccessToken    string `json:"access_token"`
+	AccessTokenExp int64  `json:"access_token_exp"`
+	RefreshToken   string `json:"refresh_token"`
+}
+
 type LoginUserResponse struct {
-	ID        string     `json:"id,omitempty"`
-	Email     string     `json:"email,omitempty"`
-	Name      string     `json:"name,omitempty"`
-	Token     string     `json:"token,omitempty"`
-	CreatedAt *time.Time `json:"created_at,omitempty"`
-	UpdatedAt *time.Time `json:"updated_at,omitempty"`
+	*UserResponse `json:"user"`
+
+	*TokenResponse `json:"token"`
 }
 
 type LogoutUserRequest struct {
-	ID string `json:"id" validate:"required,max=100"`
+	RefreshToken string `json:"refresh_token" validate:"required" name:"refresh_token"`
 }
 
 type FindUserRequest struct {

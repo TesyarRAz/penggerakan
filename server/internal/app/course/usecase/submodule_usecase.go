@@ -19,14 +19,14 @@ import (
 
 type SubModuleUseCase struct {
 	DB                  *sqlx.DB
-	Config              util.DotEnvConfig
+	Config              model.DotEnvConfig
 	Log                 *logrus.Logger
 	Validate            *validator.Validate
 	ModuleRepository    *course_repository.ModuleRepository
 	SubModuleRepository *course_repository.SubModuleRepository
 }
 
-func NewSubModuleUseCase(db *sqlx.DB, dotenvcfg util.DotEnvConfig, logger *logrus.Logger, validate *validator.Validate, moduleRepository *course_repository.ModuleRepository, subModuleRepository *course_repository.SubModuleRepository) *SubModuleUseCase {
+func NewSubModuleUseCase(db *sqlx.DB, dotenvcfg model.DotEnvConfig, logger *logrus.Logger, validate *validator.Validate, moduleRepository *course_repository.ModuleRepository, subModuleRepository *course_repository.SubModuleRepository) *SubModuleUseCase {
 	return &SubModuleUseCase{
 		DB:                  db,
 		Config:              dotenvcfg,

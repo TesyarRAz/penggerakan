@@ -74,3 +74,33 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--secondary) var(--primary);
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 15px;
+
+  background: repeating-linear-gradient(
+    45deg,
+    var(--secondary),
+    var(--secondary) 5px,
+    var(--primary) 5px,
+    var(--primary) 10px
+  );
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--primary);
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--secondary);
+  border-radius: 14px;
+  border: 3px solid var(--primary);
+}

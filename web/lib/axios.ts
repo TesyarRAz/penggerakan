@@ -1,10 +1,12 @@
-import Axios from 'axios';
+import Axios, { CreateAxiosDefaults } from 'axios';
 
-export const axios = Axios.create({
+export const AxiosAppConfig: CreateAxiosDefaults = {
   baseURL: process.env.API_URL,
-  timeout: 1000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
-});
+}
+
+export const axios = Axios.create(AxiosAppConfig);
+export const axiosAuth = Axios.create(AxiosAppConfig);

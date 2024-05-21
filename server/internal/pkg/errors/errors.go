@@ -4,7 +4,7 @@ type Unauthorized struct {
 	Message string
 }
 
-func NewUnathorized() Unauthorized {
+func NewUnauthorized() Unauthorized {
 	return Unauthorized{
 		Message: "Unauthorized",
 	}

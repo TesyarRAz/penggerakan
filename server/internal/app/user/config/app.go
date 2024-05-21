@@ -8,11 +8,14 @@ import (
 	user_repository "github.com/TesyarRAz/penggerak/internal/app/user/repository"
 	user_usecase "github.com/TesyarRAz/penggerak/internal/app/user/usecase"
 	"github.com/TesyarRAz/penggerak/internal/pkg/config"
+	"github.com/TesyarRAz/penggerak/internal/pkg/repository"
 	"github.com/TesyarRAz/penggerak/internal/pkg/service"
 )
 
 type App struct {
 	cfg *config.BootstrapConfig
+
+	redisRepository *repository.RedisRepository
 
 	userRepository *user_repository.UserRepository
 	userUseCase    *user_usecase.UserUseCase
@@ -26,15 +29,18 @@ type App struct {
 var _ config.App = &App{}
 
 func NewApp(cfg *config.BootstrapConfig) *App {
+	redisRepository := repository.NewRedisRepository(cfg.Redis)
 	userRepository := user_repository.NewUserRepository(cfg.Log, cfg.DB)
 	permissionRepository := user_repository.NewPermissionRepository(cfg.Log, cfg.DB)
 	teacherRepository := user_repository.NewTeacherRepository(cfg.Log, cfg.DB)
 
-	userUseCase := user_usecase.NewUserUseCase(cfg.DB, cfg.Env, cfg.Log, cfg.Validate, userRepository, permissionRepository)
+	userUseCase := user_usecase.NewUserUseCase(cfg.DB, cfg.Env, cfg.Log, cfg.Validate, userRepository, permissionRepository, redisRepository)
 	teacherUseCase := user_usecase.NewTeacherUseCase(cfg.DB, cfg.Env, cfg.Log, cfg.Validate, userRepository, teacherRepository)
 
 	return &App{
 		cfg: cfg,
+
+		redisRepository: redisRepository,
 
 		userRepository: userRepository,
 		userUseCase:    userUseCase,

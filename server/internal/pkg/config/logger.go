@@ -1,18 +1,14 @@
 package config
 
 import (
-	"strconv"
-
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
+	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/sirupsen/logrus"
 )
 
-func NewLogger(config util.DotEnvConfig) *logrus.Logger {
+func NewLogger(config model.DotEnvConfig) *logrus.Logger {
 	log := logrus.New()
 
-	logLevel, _ := strconv.Atoi(config["LOG_LEVEL"])
-
-	log.SetLevel(logrus.Level(logLevel))
+	log.SetLevel(logrus.Level(config.LogLevel()))
 	log.SetFormatter(&logrus.JSONFormatter{})
 	log.SetReportCaller(true)
 

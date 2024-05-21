@@ -3,12 +3,12 @@ package config
 import (
 	"fmt"
 
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
+	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/joho/godotenv"
 )
 
-func NewDotEnv(filenames ...string) util.DotEnvConfig {
-	var config util.DotEnvConfig
+func NewDotEnv(filenames ...string) model.DotEnvConfig {
+	var config model.DotEnvConfig
 
 	config, err := godotenv.Read(filenames...)
 

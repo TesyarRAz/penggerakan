@@ -35,18 +35,18 @@ func TestCreateCourse(t *testing.T) {
 	bytes, err := io.ReadAll(response.Body)
 	assert.Nil(t, err)
 
-	responseBody := new(model.WebResponse[course_model.CourseResponse])
-	err = json.Unmarshal(bytes, responseBody)
+	var responseBody course_model.CourseResponse
+	err = json.Unmarshal(bytes, &responseBody)
 	assert.Nil(t, err)
 
 	assert.Equal(t, http.StatusCreated, response.StatusCode)
-	assert.Equal(t, requestBody.Name, responseBody.Data.Name)
-	assert.Equal(t, requestBody.Image, responseBody.Data.Image)
-	assert.NotNil(t, responseBody.Data.ID)
-	assert.NotNil(t, responseBody.Data.CreatedAt)
-	// assert.NotNil(t, responseBody.Data.UpdatedAt)
+	assert.Equal(t, requestBody.Name, responseBody.Name)
+	assert.Equal(t, requestBody.Image, responseBody.Image)
+	assert.NotNil(t, responseBody.ID)
+	assert.NotNil(t, responseBody.CreatedAt)
+	// assert.NotNil(t, responseBody.UpdatedAt)
 
-	created, err := db.MustExec("SELECT COUNT(*) FROM courses WHERE id = $1", responseBody.Data.ID).RowsAffected()
+	created, err := db.MustExec("SELECT COUNT(*) FROM courses WHERE id = $1", responseBody.ID).RowsAffected()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), created)
 }

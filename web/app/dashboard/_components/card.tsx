@@ -10,7 +10,9 @@ interface CourseCardProps {
 function CourseCard({ title, description, image }: CourseCardProps) {
   return (
     <div className="max-w-xs bg-white rounded-lg shadow-md overflow-hidden m-4">
-      <Image className="w-full h-48 object-cover" src={image} alt={title} />
+      <div className="h-48 w-full relative">
+      <Image className="object-cover" src={image} alt={title} layout="fill"/>
+      </div>
       <div className="p-4">
         <h3 className="text-lg font-bold mb-2">{title}</h3>
         <p className="text-gray-600 text-sm mb-4">{description}</p>

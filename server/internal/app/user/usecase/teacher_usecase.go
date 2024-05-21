@@ -10,7 +10,6 @@ import (
 	user_repository "github.com/TesyarRAz/penggerak/internal/app/user/repository"
 	"github.com/TesyarRAz/penggerak/internal/pkg/errors"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
@@ -20,7 +19,7 @@ import (
 
 type TeacherUseCase struct {
 	DB       *sqlx.DB
-	Config   util.DotEnvConfig
+	Config   model.DotEnvConfig
 	Log      *logrus.Logger
 	Validate *validator.Validate
 
@@ -28,7 +27,7 @@ type TeacherUseCase struct {
 	TeacherRepository *user_repository.TeacherRepository
 }
 
-func NewTeacherUseCase(db *sqlx.DB, dotenvcfg util.DotEnvConfig, logger *logrus.Logger, validate *validator.Validate,
+func NewTeacherUseCase(db *sqlx.DB, dotenvcfg model.DotEnvConfig, logger *logrus.Logger, validate *validator.Validate,
 	userRepository *user_repository.UserRepository, teacherRepository *user_repository.TeacherRepository) *TeacherUseCase {
 	return &TeacherUseCase{
 		DB:                db,

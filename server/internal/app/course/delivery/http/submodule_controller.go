@@ -57,7 +57,7 @@ func (c *SubModuleController) Create(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.Status(fiber.StatusCreated).JSON(model.WebResponse[*course_model.SubModuleResponse]{Data: response})
+	return ctx.Status(fiber.StatusCreated).JSON(response)
 }
 
 func (c *SubModuleController) Update(ctx *fiber.Ctx) error {
@@ -76,7 +76,7 @@ func (c *SubModuleController) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*course_model.SubModuleResponse]{Data: response})
+	return ctx.JSON(response)
 }
 
 func (c *SubModuleController) Delete(ctx *fiber.Ctx) error {
@@ -91,7 +91,7 @@ func (c *SubModuleController) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[any]{
+	return ctx.JSON(model.WebResponse{
 		Message: "SubModule deleted successfully",
 	})
 }
@@ -108,5 +108,5 @@ func (c *SubModuleController) FindById(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*course_model.SubModuleResponse]{Data: response})
+	return ctx.JSON(response)
 }

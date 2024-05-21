@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 
 interface CarrouselProps {
@@ -18,10 +18,10 @@ function CarrouselNews({ items }: CarrouselProps) {
     setCurrentIndex(newIndex);
   };
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     const newIndex = (currentIndex + 1) % items.length;
     setCurrentIndex(newIndex);
-  };
+  }, [currentIndex, items])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -31,12 +31,7 @@ function CarrouselNews({ items }: CarrouselProps) {
     return () => {
       clearInterval(interval);
     };
-  }, [currentIndex]);
-
-  useEffect(() => {
-    console.log("Current Index:", currentIndex);
-    console.log("Current Item:", items[currentIndex]);
-  }, [currentIndex, items]);
+  }, [currentIndex, handleNext]);
 
   return (
     <div className="relative w-full max-w-lg mx-auto">
@@ -55,11 +50,14 @@ function CarrouselNews({ items }: CarrouselProps) {
               zIndex: index === currentIndex ? 1 : 0,
             }}
           >
-            <Image
-              src={item.image}
-              alt={item.title}
-              className="w-full h-64 object-cover"
-            />
+            <div className="w-full h-64 relative">
+              <Image
+                src={item.image}
+                alt={item.title}
+                className=" object-cover"
+                fill
+              />
+            </div>
             <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-4">
               <h3 className="text-xl font-bold">{item.title}</h3>
               <p>{item.description}</p>

@@ -6,13 +6,13 @@ import (
 
 	monolith_migration "github.com/TesyarRAz/penggerak/internal/app/monolith/db"
 	"github.com/TesyarRAz/penggerak/internal/pkg/config"
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
+	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 )
 
 var (
-	dotenv util.DotEnvConfig
+	dotenv model.DotEnvConfig
 	logger *logrus.Logger
 	db     *sqlx.DB
 

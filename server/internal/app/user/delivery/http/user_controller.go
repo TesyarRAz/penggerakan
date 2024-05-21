@@ -6,6 +6,7 @@ import (
 	user_model "github.com/TesyarRAz/penggerak/internal/app/user/model"
 	user_usecase "github.com/TesyarRAz/penggerak/internal/app/user/usecase"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
+	shared_model "github.com/TesyarRAz/penggerak/internal/pkg/model/shared"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
 )
@@ -34,7 +35,7 @@ func (c *UserController) Login(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*user_model.LoginUserResponse]{Data: response})
+	return ctx.JSON(response)
 }
 
 func (c *UserController) Me(ctx *fiber.Ctx) error {
@@ -50,7 +51,7 @@ func (c *UserController) Me(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*user_model.UserResponse]{Data: response})
+	return ctx.JSON(response)
 }
 
 func (c *UserController) Logout(ctx *fiber.Ctx) error {
@@ -86,7 +87,7 @@ func (c *UserController) Create(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*user_model.UserResponse]{Data: response})
+	return ctx.JSON(response)
 }
 
 func (c *UserController) Update(ctx *fiber.Ctx) error {
@@ -111,7 +112,7 @@ func (c *UserController) Update(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*user_model.UserResponse]{Data: response})
+	return ctx.JSON(response)
 }
 
 func (c *UserController) Delete(ctx *fiber.Ctx) error {
@@ -132,7 +133,7 @@ func (c *UserController) Delete(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[any]{
+	return ctx.JSON(model.WebResponse{
 		Message: "User deleted successfully",
 	})
 }
@@ -153,7 +154,7 @@ func (c *UserController) FindById(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[*user_model.UserResponse]{Data: response})
+	return ctx.JSON(response)
 }
 
 func (c *UserController) AttachRole(ctx *fiber.Ctx) error {
@@ -172,7 +173,7 @@ func (c *UserController) AttachRole(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[any]{
+	return ctx.JSON(model.WebResponse{
 		Message: "Role attached successfully",
 	})
 }
@@ -193,7 +194,22 @@ func (c *UserController) DetachRole(ctx *fiber.Ctx) error {
 		return err
 	}
 
-	return ctx.JSON(model.WebResponse[any]{
+	return ctx.JSON(model.WebResponse{
 		Message: "Role detached successfully",
 	})
+}
+
+func (c *UserController) RefreshToken(ctx *fiber.Ctx) error {
+	var request shared_model.RefreshTokenRequest
+	if err := ctx.BodyParser(&request); err != nil {
+		c.Log.Warnf("Failed to parse request body : %+v", err)
+		return fiber.ErrBadRequest
+	}
+
+	response, err := c.UseCase.RefreshToken(ctx.UserContext(), &request)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(response)
 }

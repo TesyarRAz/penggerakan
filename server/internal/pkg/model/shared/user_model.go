@@ -7,21 +7,31 @@ import (
 )
 
 type VerifyUserRequest struct {
-	Token string `validate:"required"`
+	AccessToken string `validate:"required"`
 }
 
 func NewVerifyUserRequestFromAuthorizationHeader(header string) (*VerifyUserRequest, error) {
 	if header == "" {
-		return nil, errors.NewUnathorized()
+		return nil, errors.NewUnauthorized()
 	}
 
 	splitToken := strings.Split(header, " ")
 	if len(splitToken) != 2 || splitToken[0] != "Bearer" {
-		return nil, errors.NewUnathorized()
+		return nil, errors.NewUnauthorized()
 	}
 
 	parsedToken := splitToken[1]
 	return &VerifyUserRequest{
-		Token: parsedToken,
+		AccessToken: parsedToken,
 	}, nil
+}
+
+type RefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token" validate:"required" name:"refresh_token"`
+}
+
+type RefreshTokenResponse struct {
+	AccessToken    string `json:"access_token"`
+	AccessTokenExp int64  `json:"access_token_exp"`
+	RefreshToken   string `json:"refresh_token"`
 }

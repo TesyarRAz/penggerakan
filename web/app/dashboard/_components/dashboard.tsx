@@ -58,26 +58,10 @@ const courseCardItems = [
 ];
 
 const Dashboard = () => {
-  const [themeDark, setThemeDark] = useState(true);
-
-  useEffect(() => {
-    if (window.matchMedia("prefers-color-scheme:dark").matches) {
-      setThemeDark(true);
-    } else {
-      setThemeDark(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (themeDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [themeDark]);
+  const [ setTheme, theme ] = useState(true);
 
   return (
-    <div className="bg-white dark:bg-gray-900 h-screen overflow-auto">
+    <div className="bg-white dark:bg-gray-900">
       <div>
         <h2 className="font-sans font-bold text-3xl ml-5 pt-5 dark:text-white">
           Home Page

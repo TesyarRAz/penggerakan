@@ -15,7 +15,6 @@ import (
 	"github.com/TesyarRAz/penggerak/internal/pkg/config"
 	migration "github.com/TesyarRAz/penggerak/internal/pkg/db"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/go-playground/validator/v10"
 	gofiber "github.com/gofiber/fiber/v2"
 	"github.com/jmoiron/sqlx"
@@ -26,7 +25,7 @@ import (
 var (
 	fiber    *gofiber.App
 	db       *sqlx.DB
-	env      util.DotEnvConfig
+	env      model.DotEnvConfig
 	log      *logrus.Logger
 	validate *validator.Validate
 
@@ -69,7 +68,7 @@ func init() {
 	}
 }
 
-func GetAdmin(t *testing.T) (*user_model.LoginUserRequest, *http.Response, *model.WebResponse[user_model.LoginUserResponse]) {
+func GetAdmin(t *testing.T) (*user_model.LoginUserRequest, *http.Response, *user_model.LoginUserResponse) {
 	requestBody := user_model.LoginUserRequest{
 		Email:    "admin@example.com",
 		Password: "password",
@@ -88,17 +87,17 @@ func GetAdmin(t *testing.T) (*user_model.LoginUserRequest, *http.Response, *mode
 	bytes, err := io.ReadAll(response.Body)
 	assert.Nil(t, err)
 
-	responseBody := new(model.WebResponse[user_model.LoginUserResponse])
-	err = json.Unmarshal(bytes, responseBody)
+	var responseBody user_model.LoginUserResponse
+	err = json.Unmarshal(bytes, &responseBody)
 	assert.Nil(t, err)
 
-	return &requestBody, response, responseBody
+	return &requestBody, response, &responseBody
 }
 
 func GetAdminToken(t *testing.T) string {
 	_, _, responseBody := GetAdmin(t)
 
-	token := responseBody.Data.Token
+	token := responseBody.AccessToken
 	assert.NotNil(t, token)
 
 	return token

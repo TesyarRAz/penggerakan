@@ -8,6 +8,10 @@ compile:
 
 serve:
 	@echo "Running the server"
+	@go run cmd/monolith/main.go
+
+serve-watch:
+	@echo "Running the server"
 	@air --build.cmd "go build -o dist/bin/monolith/monolith.exe cmd/monolith/main.go" --build.bin "dist\\bin\\monolith\\monolith.exe"
 
 migration:

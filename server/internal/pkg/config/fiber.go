@@ -4,12 +4,12 @@ import (
 	"strconv"
 
 	"github.com/TesyarRAz/penggerak/internal/pkg/errors"
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
+	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 )
 
-func NewFiber(config util.DotEnvConfig) *fiber.App {
+func NewFiber(config model.DotEnvConfig) *fiber.App {
 	prefork, _ := strconv.ParseBool(config["WEB_PREFORK"])
 
 	app := fiber.New(fiber.Config{

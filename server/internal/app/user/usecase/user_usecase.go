@@ -3,6 +3,7 @@ package user_usecase
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	user_entity "github.com/TesyarRAz/penggerak/internal/app/user/entity"
@@ -12,26 +13,35 @@ import (
 	"github.com/TesyarRAz/penggerak/internal/pkg/errors"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	shared_model "github.com/TesyarRAz/penggerak/internal/pkg/model/shared"
+	"github.com/TesyarRAz/penggerak/internal/pkg/repository"
 	"github.com/TesyarRAz/penggerak/internal/pkg/util"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/samber/lo"
 	lop "github.com/samber/lo/parallel"
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	secretRedisKey = "secret"
+	logoutRedisKey = "logout"
+)
+
 type UserUseCase struct {
 	DB                   *sqlx.DB
-	Config               util.DotEnvConfig
+	Config               model.DotEnvConfig
 	Log                  *logrus.Logger
 	Validate             *validator.Validate
 	UserRepository       *user_repository.UserRepository
 	PermissionRepository *user_repository.PermissionRepository
+	RedisRepository      *repository.RedisRepository
 }
 
-func NewUserUseCase(db *sqlx.DB, dotenvcfg util.DotEnvConfig, logger *logrus.Logger, validate *validator.Validate,
-	userRepository *user_repository.UserRepository, permissionRepository *user_repository.PermissionRepository) *UserUseCase {
+func NewUserUseCase(db *sqlx.DB, dotenvcfg model.DotEnvConfig, logger *logrus.Logger, validate *validator.Validate,
+	userRepository *user_repository.UserRepository, permissionRepository *user_repository.PermissionRepository,
+	redisRepository *repository.RedisRepository) *UserUseCase {
 	return &UserUseCase{
 		DB:                   db,
 		Config:               dotenvcfg,
@@ -39,6 +49,7 @@ func NewUserUseCase(db *sqlx.DB, dotenvcfg util.DotEnvConfig, logger *logrus.Log
 		Validate:             validate,
 		UserRepository:       userRepository,
 		PermissionRepository: permissionRepository,
+		RedisRepository:      redisRepository,
 	}
 }
 
@@ -48,8 +59,8 @@ func (c *UserUseCase) Verify(ctx context.Context, request *shared_model.VerifyUs
 		return nil, err
 	}
 
-	token, err := jwt.Parse(request.Token, func(token *jwt.Token) (interface{}, error) {
-		return []byte(util.StringOrDefault(c.Config["JWT_SECRET_KEY"], c.Config["APP_ID"])), nil
+	token, err := jwt.Parse(request.AccessToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte(c.Config.JWTSecret()), nil
 	}, jwt.WithExpirationRequired(), jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
 
 	if err != nil {
@@ -103,30 +114,151 @@ func (c *UserUseCase) Login(ctx context.Context, request *user_model.LoginUserRe
 		return nil, errors.NewInternalServerError()
 	}
 
-	secretKey := []byte(c.Config.StringOrDefaultKey("JWT_SECRET", "APP_ID"))
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":          user.ID,
-		"sub":         user.Name,
-		"roles":       user.Roles,
-		"permissions": user.Permissions,
-		"exp":         time.Now().Add(time.Hour * 24).Unix(),
-	})
-
-	tokenString, err := token.SignedString(secretKey)
+	accessToken, accessExp, refreshToken, err := c.generateToken(&user, nil)
 	if err != nil {
-		c.Log.Warnf("Failed to sign token : %+v", err)
+		c.Log.Warnf("Failed to generate token : %+v", err)
 		return nil, errors.NewInternalServerError()
 	}
 
 	return &user_model.LoginUserResponse{
-		ID:        user.ID,
-		Name:      user.Name,
-		Email:     user.Email,
-		Token:     tokenString,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+		UserResponse: user_converter.UserToResponse(&user, true),
+		TokenResponse: &user_model.TokenResponse{
+			AccessToken:    accessToken,
+			AccessTokenExp: accessExp,
+			RefreshToken:   refreshToken,
+		},
 	}, nil
+}
+
+func (c *UserUseCase) RefreshToken(ctx context.Context, request *shared_model.RefreshTokenRequest) (*shared_model.RefreshTokenResponse, error) {
+	if err := c.Validate.Struct(request); err != nil {
+		c.Log.Warnf("Failed to validate request : %+v", err)
+		return nil, err
+	}
+
+	token, err := jwt.Parse(request.RefreshToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte(c.Config.JWTRefreshSecret()), nil
+	}, jwt.WithExpirationRequired(), jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
+
+	if err != nil {
+		c.Log.Warnf("Failed to parse token : %+v", err)
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		c.Log.Warn("Failed to validate token")
+		return nil, err
+	}
+
+	// Validate if secret token is not black listed
+	secretToken := claims[secretRedisKey].(string)
+	exists, err := c.RedisRepository.Exists(context.Background(), fmt.Sprint(logoutRedisKey, ":", secretToken))
+	if err != nil {
+		c.Log.Warnf("Failed to get secret token : %+v", err)
+		return nil, errors.NewInternalServerError()
+	}
+	if exists {
+		c.Log.Warn("Secret token is black listed")
+		return nil, errors.NewUnauthorized()
+	}
+
+	tx, err := c.DB.Beginx()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	var user user_entity.User
+	if err := c.UserRepository.FindById(tx, &user, claims["id"].(string)); err != nil {
+		c.Log.Warnf("Failed to find user by id : %+v", err)
+		return nil, errors.NewNotFound()
+	}
+
+	if err = c.getUserAcl(tx, &user); err != nil {
+		c.Log.Warnf("Failed to get user acl : %+v", err)
+		return nil, errors.NewInternalServerError()
+	}
+
+	if err := tx.Commit(); err != nil {
+		c.Log.Warnf("Failed to commit transaction : %+v", err)
+		return nil, errors.NewInternalServerError()
+	}
+
+	accessToken, accessExp, refreshToken, err := c.generateToken(&user, &claims)
+	if err != nil {
+		c.Log.Warnf("Failed to generate token : %+v", err)
+		return nil, errors.NewInternalServerError()
+	}
+
+	return &shared_model.RefreshTokenResponse{
+		AccessToken:    accessToken,
+		AccessTokenExp: accessExp,
+		RefreshToken:   refreshToken,
+	}, nil
+}
+
+func (c *UserUseCase) generateToken(user *user_entity.User, oldJwt *jwt.MapClaims) (string, int64, string, error) {
+	var secretToken string
+	if oldJwt == nil {
+		secretToken = uuid.New().String()
+	} else {
+		secretToken = (*oldJwt)[secretRedisKey].(string)
+	}
+
+	accessToken, accessExp, err := c.createAccessToken(user)
+	if err != nil {
+		c.Log.Warnf("Failed to sign token : %+v", err)
+		return "", 0, "", errors.NewInternalServerError()
+	}
+
+	refreshToken, err := c.createRefreshToken(user, secretToken)
+	if err != nil {
+		c.Log.Warnf("Failed to sign token : %+v", err)
+		return "", 0, "", errors.NewInternalServerError()
+	}
+
+	return accessToken, accessExp, refreshToken, nil
+}
+
+func (c *UserUseCase) createAccessToken(user *user_entity.User) (string, int64, error) {
+	secretKey := []byte(c.Config.StringOrDefaultKey("JWT_SECRET", "APP_ID"))
+	exp := time.Now().Add(time.Minute * 5).Unix()
+
+	roles := lop.Map(user.Roles, func(role *user_entity.Role, _ int) *user_model.RoleResponse {
+		return user_converter.RoleToResponse(role)
+	})
+
+	permissions := lop.Map(user.Permissions, func(permission *user_entity.Permission, _ int) *user_model.PermissionResponse {
+		return user_converter.PermissionToResponse(permission)
+	})
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":          user.ID,
+		"sub":         user.Name,
+		"roles":       roles,
+		"permissions": permissions,
+		"exp":         exp,
+		"iat":         time.Now().Unix(),
+	})
+
+	tokenString, err := token.SignedString(secretKey)
+
+	return tokenString, exp, err
+}
+
+func (c *UserUseCase) createRefreshToken(user *user_entity.User, secretToken string) (string, error) {
+	secretKey := []byte(c.Config.StringOrDefaultKey("JWT_REFRESH_SECRET", "APP_ID"))
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"id":           user.ID,
+		secretRedisKey: secretToken,
+		"sub":          user.Name,
+		"exp":          time.Now().Add(time.Hour * 24).Unix(),
+		"iat":          time.Now().Unix(),
+	})
+
+	return token.SignedString(secretKey)
 }
 
 func (c *UserUseCase) FindUserById(ctx context.Context, request *user_model.FindUserRequest) (*user_model.UserResponse, error) {
@@ -402,6 +534,36 @@ func (c *UserUseCase) getUserAcl(tx *sqlx.Tx, users ...*user_entity.User) error 
 	if err := c.PermissionRepository.PermissionsByUsers(tx, users...); err != nil {
 		c.Log.Warnf("Failed to find permissions by user : %+v", err)
 		return err
+	}
+
+	return nil
+}
+
+func (c *UserUseCase) Logout(ctx context.Context, request *user_model.LogoutUserRequest) error {
+	if err := c.Validate.Struct(request); err != nil {
+		c.Log.Warnf("Failed to validate request : %+v", err)
+		return err
+	}
+
+	token, err := jwt.Parse(request.RefreshToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte(c.Config.JWTRefreshSecret()), nil
+	}, jwt.WithExpirationRequired(), jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Name}))
+
+	if err != nil {
+		c.Log.Warnf("Failed to parse token : %+v", err)
+		return err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		c.Log.Warn("Failed to validate token")
+		return err
+	}
+
+	secretToken := claims[secretRedisKey].(string)
+	if err := c.RedisRepository.Set(context.Background(), fmt.Sprint(logoutRedisKey, ":", secretToken), true, time.Hour*25); err != nil {
+		c.Log.Warnf("Failed to set secret token : %+v", err)
+		return errors.NewInternalServerError()
 	}
 
 	return nil

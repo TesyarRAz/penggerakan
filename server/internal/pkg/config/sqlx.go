@@ -3,20 +3,14 @@ package config
 import (
 	"fmt"
 	"net/url"
-	"strconv"
-	"time"
 
-	"github.com/TesyarRAz/penggerak/internal/pkg/util"
+	"github.com/TesyarRAz/penggerak/internal/pkg/model"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 )
 
-func NewDatabase(config util.DotEnvConfig, log *logrus.Logger) *sqlx.DB {
-	idleConnection, _ := strconv.Atoi(config["DB_POOL_IDLE"])
-	maxConnection, _ := strconv.Atoi(config["DB_POOL_MAX"])
-	maxLifeTimeConnection, _ := strconv.Atoi(config["DB_POOL_LIFETIME"])
-
+func NewDatabase(config model.DotEnvConfig, log *logrus.Logger) *sqlx.DB {
 	dsn := GenerateDSNFromConfig(config)
 
 	db, err := sqlx.Connect("pgx", dsn)
@@ -24,23 +18,19 @@ func NewDatabase(config util.DotEnvConfig, log *logrus.Logger) *sqlx.DB {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 
-	db.SetMaxIdleConns(idleConnection)
-	db.SetMaxOpenConns(maxConnection)
-	db.SetConnMaxLifetime(time.Second * time.Duration(maxLifeTimeConnection))
-
 	return db
 }
 
-func GenerateDSNFromConfig(config util.DotEnvConfig) string {
-	username := config["DB_USERNAME"]
-	password := config["DB_PASSWORD"]
-	host := config["DB_HOST"]
-	port := config["DB_PORT"]
-	database := config["DB_NAME"]
-	sslMode := config["DB_SSLMODE"]
+func GenerateDSNFromConfig(config model.DotEnvConfig) string {
+	username := config.DBUsername()
+	password := config.DBPassword()
+	host := config.DBHost()
+	port := config.DBPort()
+	database := config.DBName()
+	sslMode := config.DBSSLMode()
 
 	q := url.Values{}
 	q.Set("sslmode", sslMode)
 
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?%s", username, password, host, port, database, q.Encode())
+	return fmt.Sprintf("postgres://%s:%s@%s:%v/%s?%s", username, password, host, port, database, q.Encode())
 }
