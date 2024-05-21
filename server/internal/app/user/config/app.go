@@ -54,7 +54,8 @@ func NewApp(cfg *config.BootstrapConfig) *App {
 
 func (a *App) Provider() config.Provider {
 	return config.Provider{
-		service.AUTH_SERVICE: user_provider.NewAuthProvider(a.userUseCase),
+		service.AUTH_SERVICE:    user_provider.NewAuthProvider(a.userUseCase),
+		service.TEACHER_SERVICE: user_provider.NewTeacherProvider(a.teacherUseCase),
 	}
 }
 

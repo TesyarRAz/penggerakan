@@ -210,6 +210,30 @@ func (c *TeacherUseCase) FindById(ctx context.Context, request *user_model.FindT
 	return user_converter.TeacherToResponse(&teacher), nil
 }
 
+func (c *TeacherUseCase) FindByIds(ctx context.Context, request *user_model.FindTeachersRequest) ([]*user_model.TeacherResponse, error) {
+	if err := c.Validate.Struct(request); err != nil {
+		c.Log.Warnf("Failed to validate request : %+v", err)
+		return nil, err
+	}
+
+	tx, err := c.DB.Beginx()
+	if err != nil {
+		c.Log.Warnf("Failed to begin transaction : %+v", err)
+		return nil, errors.NewInternalServerError()
+	}
+	defer tx.Rollback()
+
+	var teachers []*user_entity.Teacher
+	if err := c.TeacherRepository.FindByIds(tx, &teachers, request.IDs); err != nil {
+		c.Log.Warnf("Failed to find teachers : %+v", err)
+		return nil, errors.NewNotFound()
+	}
+
+	return lop.Map(teachers, func(teacher *user_entity.Teacher, _ int) *user_model.TeacherResponse {
+		return user_converter.TeacherToResponse(teacher)
+	}), nil
+}
+
 func (c *TeacherUseCase) FindByUserID(ctx context.Context, request *user_model.FindTeacherByUserIdRequest) (*user_model.TeacherResponse, error) {
 	if err := c.Validate.Struct(request); err != nil {
 		c.Log.Warnf("Failed to validate request : %+v", err)

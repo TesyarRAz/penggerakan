@@ -81,12 +81,12 @@ const SidebarLeft = ({
             icon={FaBook}
             expanded={expanded}
           />
-          <MenuItem
+          {/* <MenuItem
             href="/dashboard/students"
             title="Student"
             icon={PiStudentFill}
             expanded={expanded}
-          />
+          /> */}
           <MenuItem
             href="/dashboard/teachers"
             title="Teacher"

@@ -6,19 +6,26 @@ import (
 	course_model "github.com/TesyarRAz/penggerak/internal/app/course/model"
 	course_usecase "github.com/TesyarRAz/penggerak/internal/app/course/usecase"
 	"github.com/TesyarRAz/penggerak/internal/pkg/model"
+	shared_model "github.com/TesyarRAz/penggerak/internal/pkg/model/shared"
+	"github.com/TesyarRAz/penggerak/internal/pkg/service"
 	"github.com/gofiber/fiber/v2"
 	"github.com/sirupsen/logrus"
+
+	"github.com/samber/lo"
+	lop "github.com/samber/lo/parallel"
 )
 
 type CourseController struct {
-	Log     *logrus.Logger
-	UseCase *course_usecase.CourseUseCase
+	Log            *logrus.Logger
+	UseCase        *course_usecase.CourseUseCase
+	TeacherService *service.TeacherService
 }
 
-func NewCourseController(useCase *course_usecase.CourseUseCase, log *logrus.Logger) *CourseController {
+func NewCourseController(useCase *course_usecase.CourseUseCase, log *logrus.Logger, teacherService *service.TeacherService) *CourseController {
 	return &CourseController{
-		Log:     log,
-		UseCase: useCase,
+		Log:            log,
+		UseCase:        useCase,
+		TeacherService: teacherService,
 	}
 }
 
@@ -34,6 +41,26 @@ func (c *CourseController) List(ctx *fiber.Ctx) error {
 	response, pageInfo, err := c.UseCase.List(ctx.UserContext(), &request)
 	if err != nil {
 		return err
+	}
+
+	// Add Teacher to Course
+	if len(response) > 0 {
+		teacherIds := lop.Map(response, func(course *course_model.CourseResponse, _ int) string {
+			return course.TeacherID
+		})
+		teachers, err := (*c.TeacherService).FindByIds(ctx.UserContext(), teacherIds...)
+		if err != nil {
+			c.Log.Warnf("Failed to find teachers : %+v", err)
+			return fiber.ErrInternalServerError
+		}
+		response = lop.Map(response, func(course *course_model.CourseResponse, _ int) *course_model.CourseResponse {
+			teacher, _ := lo.Find(teachers, func(teacher *shared_model.TeacherResponse) bool {
+				return teacher.ID == course.TeacherID
+			})
+			course.Teacher = teacher
+
+			return course
+		})
 	}
 
 	return ctx.JSON(model.PageResponse[*course_model.CourseResponse]{Data: response, PageMetadata: *pageInfo})

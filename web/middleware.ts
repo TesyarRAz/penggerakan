@@ -1,16 +1,30 @@
 import { getToken } from 'next-auth/jwt'
 import { NextFetchEvent, NextRequest, NextResponse } from 'next/server'
 import { withAuth } from "next-auth/middleware"
+import { signIn } from 'next-auth/react'
+import { getServerSession } from 'next-auth'
+import { authOptions } from './app/api/auth/[...nextauth]/route'
 
 export default withAuth(
     async (req) => {
         const token = await getToken({ req })
         const { pathname } = req.nextUrl
 
+        const tokenIsValid = token && token.error !== "RefreshAccessTokenError"
 
-        if (token) {
+        if (tokenIsValid) {
+            const { user } = token
+
             if (pathname.startsWith("/auth/signin") || pathname == "/") {
                 return NextResponse.redirect(new URL("/dashboard", req.url))
+            }
+        }
+
+        // await getServerSession(authOptions)
+
+        if (!tokenIsValid) {
+            if (!pathname.startsWith("/auth/signin")) {
+                return NextResponse.redirect(new URL("/auth/signin", req.url))
             }
         }
     },

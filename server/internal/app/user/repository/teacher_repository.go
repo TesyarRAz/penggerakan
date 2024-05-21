@@ -54,6 +54,19 @@ func (t *TeacherRepository) FindById(db *sqlx.Tx, entity *user_entity.Teacher, i
 	return err
 }
 
+func (t *TeacherRepository) FindByIds(db *sqlx.Tx, entities *[]*user_entity.Teacher, ids []string) error {
+	query, args, err := sqlx.In("SELECT * FROM teachers WHERE id IN (?)", ids)
+	if err != nil {
+		return err
+	}
+
+	query = db.Rebind(query)
+
+	err = db.Select(entities, query, args...)
+
+	return err
+}
+
 func (t *TeacherRepository) FindByUserId(db *sqlx.Tx, entity *user_entity.Teacher, userId any) error {
 	err := db.Get(entity, "SELECT * FROM teachers WHERE user_id = $1", userId)
 

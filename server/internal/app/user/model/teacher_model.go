@@ -37,6 +37,10 @@ type FindTeacherRequest struct {
 	*ParamTeacherRequest
 }
 
+type FindTeachersRequest struct {
+	IDs []string `params:"ids" validate:"required" name:"ids"`
+}
+
 type FindTeacherByUserIdRequest struct {
 	UserID string `params:"user_id" validate:"required" name:"user_id"`
 }

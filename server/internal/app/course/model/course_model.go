@@ -1,6 +1,10 @@
 package course_model
 
-import "time"
+import (
+	"time"
+
+	shared_model "github.com/TesyarRAz/penggerak/internal/pkg/model/shared"
+)
 
 type CourseResponse struct {
 	ID        string     `json:"id"`
@@ -8,6 +12,8 @@ type CourseResponse struct {
 	Name      string     `json:"name"`
 	Image     string     `json:"image"`
 	CreatedAt *time.Time `json:"created_at"`
+
+	Teacher *shared_model.TeacherResponse `json:"teacher"`
 }
 
 type ParamCourseRequest struct {
