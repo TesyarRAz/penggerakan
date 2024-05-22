@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import { RiEqualizerFill } from "react-icons/ri";
-import CourseCard from "../courses/_components/course-card";
+import CourseCard from "../(courses)/courses/_components/course-card";
 import Carousel from "./carousel";
 
 const carrouselItems = [

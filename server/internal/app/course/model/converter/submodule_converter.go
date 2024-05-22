@@ -10,6 +10,7 @@ import (
 func SubModuleToResponse(subModule *course_entity.SubModule) *course_model.SubModuleResponse {
 	return &course_model.SubModuleResponse{
 		ID:        subModule.ID,
+		ModuleId:  subModule.ModuleID,
 		Name:      subModule.Name,
 		Structure: json.RawMessage(subModule.Structure),
 		CreatedAt: subModule.CreatedAt,

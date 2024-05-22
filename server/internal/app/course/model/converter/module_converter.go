@@ -8,6 +8,7 @@ import (
 func ModuleToResponse(module *course_entity.Module) *course_model.ModuleResponse {
 	return &course_model.ModuleResponse{
 		ID:        module.ID,
+		CourseID:  module.CourseID,
 		Name:      module.Name,
 		CreatedAt: module.CreatedAt,
 	}

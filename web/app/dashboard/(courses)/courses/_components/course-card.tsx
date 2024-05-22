@@ -7,14 +7,15 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import deleteCourseAction from "../_actions/delete-course-action";
 
-interface CourseCardProps {
-  id: string
-  name: string;
-  description: string;
-  image: string;
-}
-
-function CourseCard({ id, name, description, image }: CourseCardProps) {
+function CourseCard({ 
+  course: {
+    id,
+    name,
+    image,
+  }
+ }: {
+  course: CourseResponse
+ }) {
   const { data: session } = useSession()
   const router = useRouter()
 
@@ -35,12 +36,17 @@ function CourseCard({ id, name, description, image }: CourseCardProps) {
   return (
     <div className="max-w-xs bg-white rounded-lg shadow-md overflow-hidden m-4">
       <picture>
-        <img className="object-cover h-48 w-full" src={image} alt={id} />
+        <img className="object-cover h-48 w-full" src={image} alt={name} />
       </picture>
       <div className="p-4">
         <h3 className="text-lg text-gray-400 font-bold mb-2">{name}</h3>
-        <p className="text-gray-600 text-sm mb-4">{description}</p>
-        <div className="flex items-center justify-between">
+        <p className="text-gray-600 text-sm mb-4">{id}</p>
+        <div className="flex items-center justify-end">
+          <Button className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" asChild>
+            <Link href={`/dashboard/modules/${id}`}>
+              Module
+            </Link>
+          </Button>
           <Button className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700" asChild>
             <Link href={`/dashboard/courses/${id}`}>
               Edit

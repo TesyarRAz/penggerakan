@@ -1,12 +1,8 @@
-import { useRouter } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 import React from 'react'
 
-const MainPage = async () => {
-  return (
-    <div>
-      Hello World
-    </div>
-  )
+const MainPage = () => {
+  return redirect('/dashboard')
 }
 
 export default MainPage

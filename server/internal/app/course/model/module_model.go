@@ -18,6 +18,7 @@ type ListModuleRequest struct {
 
 type ModuleResponse struct {
 	ID        string     `json:"id"`
+	CourseID  string     `json:"course_id"`
 	Name      string     `json:"name"`
 	CreatedAt *time.Time `json:"created_at"`
 }

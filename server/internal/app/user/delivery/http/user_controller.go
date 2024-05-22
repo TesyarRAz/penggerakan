@@ -57,7 +57,21 @@ func (c *UserController) Me(ctx *fiber.Ctx) error {
 }
 
 func (c *UserController) Logout(ctx *fiber.Ctx) error {
-	return nil
+	var request user_model.LogoutUserRequest
+
+	if err := ctx.BodyParser(&request); err != nil {
+		c.Log.Warnf("Failed to parse request body : %+v", err)
+		return fiber.ErrBadRequest
+	}
+
+	err := c.UseCase.Logout(ctx.UserContext(), &request)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(model.WebResponse{
+		Message: "Logout successfully",
+	})
 }
 
 func (c *UserController) List(ctx *fiber.Ctx) error {

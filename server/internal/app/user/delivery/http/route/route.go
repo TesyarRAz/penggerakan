@@ -20,7 +20,7 @@ func (c *RouteConfig) Setup() {
 
 	auth := c.Fiber.Group("/auth")
 	auth.Post("/login", c.UserController.Login)
-	auth.Delete("/logout", c.AuthMiddleware, c.UserController.Logout)
+	auth.Delete("/logout", c.UserController.Logout)
 	auth.Get("/me", c.AuthMiddleware, c.UserController.Me)
 	auth.Post("/refresh", c.UserController.RefreshToken)
 

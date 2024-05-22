@@ -22,11 +22,15 @@ const refreshToken = async (token: JWT): Promise<JWT> => {
             ...token,
             ...response.data,
         }
-    } catch (error) {
-        return {
-            ...token,
-            error: "RefreshAccessTokenError"
+    } catch (error: any) {
+        if (error?.response?.status === 401) {
+            return {
+                ...token,
+                error: "RefreshAccessTokenError"
+            }
         }
+
+        return token
     }
 }
 
@@ -72,7 +76,7 @@ export const authOptions: NextAuthOptions = {
                 }
             }
 
-            if (new Date().getTime() / 1000 < token.access_token_exp ?? 0) {
+            if (Date.now() / 1000 < token.access_token_exp ?? 0) {
                 return token
             }
 
@@ -80,9 +84,9 @@ export const authOptions: NextAuthOptions = {
         },
         session: async ({ session, token }) => {
             session.token = token
-
             return {
                 ...session,
+                expires: new Date(token.access_token_exp * 1000).toISOString(),
             }
         },
     },

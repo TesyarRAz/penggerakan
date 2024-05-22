@@ -6,27 +6,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from './app/api/auth/[...nextauth]/route'
 
 export default withAuth(
-    async (req) => {
-        const token = await getToken({ req })
-        const { pathname } = req.nextUrl
-
-        const tokenIsValid = token && token.error !== "RefreshAccessTokenError"
-
-        if (tokenIsValid) {
-            const { user } = token
-
-            if (pathname.startsWith("/auth/signin") || pathname == "/") {
-                return NextResponse.redirect(new URL("/dashboard", req.url))
-            }
-        }
-
-        // await getServerSession(authOptions)
-
-        if (!tokenIsValid) {
-            if (!pathname.startsWith("/auth/signin")) {
-                return NextResponse.redirect(new URL("/auth/signin", req.url))
-            }
-        }
+    (req) => {
+        
     },
     {
         callbacks: {

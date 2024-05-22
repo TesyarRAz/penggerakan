@@ -19,6 +19,7 @@ type ListSubModuleRequest struct {
 
 type SubModuleResponse struct {
 	ID        string          `json:"id"`
+	ModuleId  string          `json:"module_id"`
 	Name      string          `json:"name"`
 	Structure json.RawMessage `json:"structure"`
 	CreatedAt *time.Time      `json:"created_at"`

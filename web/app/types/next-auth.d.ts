@@ -5,6 +5,8 @@ interface Token {
     access_token: string
     access_token_exp: number
     refresh_token: string
+
+    error?: "RefreshAccessTokenError"
 }
 
 interface User {
@@ -19,7 +21,6 @@ type _AppUser = User
 
 declare module "next-auth" {
     interface Session {
-        user: User
         token: Token
     }
 
@@ -31,7 +32,5 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
     interface JWT extends Token {
         user: _AppUser
-
-        error?: "RefreshAccessTokenError"
     }
 }

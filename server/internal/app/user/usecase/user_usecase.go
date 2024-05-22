@@ -27,6 +27,7 @@ import (
 const (
 	secretRedisKey = "secret"
 	logoutRedisKey = "logout"
+	activeRedisKey = "active"
 )
 
 type UserUseCase struct {
@@ -114,7 +115,7 @@ func (c *UserUseCase) Login(ctx context.Context, request *user_model.LoginUserRe
 		return nil, errors.NewInternalServerError()
 	}
 
-	accessToken, accessExp, refreshToken, err := c.generateToken(&user, nil)
+	accessToken, accessExp, refreshToken, err := c.generateToken(ctx, &user, nil)
 	if err != nil {
 		c.Log.Warnf("Failed to generate token : %+v", err)
 		return nil, errors.NewInternalServerError()
@@ -153,7 +154,7 @@ func (c *UserUseCase) RefreshToken(ctx context.Context, request *shared_model.Re
 
 	// Validate if secret token is not black listed
 	secretToken := claims[secretRedisKey].(string)
-	exists, err := c.RedisRepository.Exists(context.Background(), fmt.Sprint(logoutRedisKey, ":", secretToken))
+	exists, err := c.RedisRepository.Exists(ctx, fmt.Sprint(logoutRedisKey, ":", secretToken))
 	if err != nil {
 		c.Log.Warnf("Failed to get secret token : %+v", err)
 		return nil, errors.NewInternalServerError()
@@ -185,7 +186,7 @@ func (c *UserUseCase) RefreshToken(ctx context.Context, request *shared_model.Re
 		return nil, errors.NewInternalServerError()
 	}
 
-	accessToken, accessExp, refreshToken, err := c.generateToken(&user, &claims)
+	accessToken, accessExp, refreshToken, err := c.generateToken(ctx, &user, &claims)
 	if err != nil {
 		c.Log.Warnf("Failed to generate token : %+v", err)
 		return nil, errors.NewInternalServerError()
@@ -198,7 +199,7 @@ func (c *UserUseCase) RefreshToken(ctx context.Context, request *shared_model.Re
 	}, nil
 }
 
-func (c *UserUseCase) generateToken(user *user_entity.User, oldJwt *jwt.MapClaims) (string, int64, string, error) {
+func (c *UserUseCase) generateToken(ctx context.Context, user *user_entity.User, oldJwt *jwt.MapClaims) (string, int64, string, error) {
 	var secretToken string
 	if oldJwt == nil {
 		secretToken = uuid.New().String()
@@ -212,7 +213,7 @@ func (c *UserUseCase) generateToken(user *user_entity.User, oldJwt *jwt.MapClaim
 		return "", 0, "", errors.NewInternalServerError()
 	}
 
-	refreshToken, err := c.createRefreshToken(user, secretToken)
+	refreshToken, err := c.createRefreshToken(ctx, user, secretToken)
 	if err != nil {
 		c.Log.Warnf("Failed to sign token : %+v", err)
 		return "", 0, "", errors.NewInternalServerError()
@@ -247,16 +248,22 @@ func (c *UserUseCase) createAccessToken(user *user_entity.User) (string, int64, 
 	return tokenString, exp, err
 }
 
-func (c *UserUseCase) createRefreshToken(user *user_entity.User, secretToken string) (string, error) {
+func (c *UserUseCase) createRefreshToken(ctx context.Context, user *user_entity.User, secretToken string) (string, error) {
 	secretKey := []byte(c.Config.StringOrDefaultKey("JWT_REFRESH_SECRET", "APP_ID"))
+	exp := time.Now().Add(time.Hour * 24).Unix()
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":           user.ID,
 		secretRedisKey: secretToken,
 		"sub":          user.Name,
-		"exp":          time.Now().Add(time.Hour * 24).Unix(),
+		"exp":          exp,
 		"iat":          time.Now().Unix(),
 	})
+
+	if err := c.RedisRepository.Set(ctx, fmt.Sprint(activeRedisKey, ":", secretToken), true, time.Hour*24); err != nil {
+		c.Log.Warnf("Failed to set active token : %+v", err)
+		return "", errors.NewInternalServerError()
+	}
 
 	return token.SignedString(secretKey)
 }

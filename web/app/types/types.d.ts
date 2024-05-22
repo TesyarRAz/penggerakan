@@ -65,3 +65,26 @@ interface UserResponse {
     permissions: Permission[]
     created_at: string
 }
+
+interface ModuleResponse {
+    id: string
+    course_id: string
+    name: string
+    created_at: string
+}
+
+interface CreateModuleRequest {
+    name: string
+}
+
+interface EditModuleRequest {
+    name: string
+}
+
+interface SubModuleResponse {
+    id: string
+    module_id: string
+    name: string
+    structure: Record<string, any>
+    created_at: string
+}
