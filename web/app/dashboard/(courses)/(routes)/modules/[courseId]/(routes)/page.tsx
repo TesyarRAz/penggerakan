@@ -1,13 +1,13 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { getServerSession } from 'next-auth'
 import React from 'react'
-import getModules from './_actions/get-modules-action'
+import getModules from '../_actions/get-modules-action'
 import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import BrowseLayout from '@/components/browse-layout'
+import BrowseLayout from '@/components/layouts/browse-layout'
 import Link from 'next/link'
 import { IoAddCircleOutline } from 'react-icons/io5'
-import ModuleCard from './_components/module-card'
+import ModuleCard from '../_components/module-card'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 const ModulesPage = async ({
     params

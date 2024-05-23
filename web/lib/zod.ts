@@ -18,3 +18,18 @@ export const courseSchema = z.object({
         message: "Invalid URL",
     }),
 })
+
+export const moduleSchema = z.object({
+    course_id: z.string().uuid(),
+    name: z.string().min(2, {
+        message: "Name is too short",
+    }),
+})
+
+export const submoduleSchema = z.object({
+    module_id: z.string().uuid(),
+    name: z.string().min(2, {
+        message: "Name is too short",
+    }),
+    structure: z.any()
+})

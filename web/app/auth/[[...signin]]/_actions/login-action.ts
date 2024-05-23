@@ -6,12 +6,12 @@ import { signIn as AuthSignIn } from "next-auth/react"
 import { Session } from "next-auth";
 
 
-interface SignInResponse {
+interface LoginResponse {
     isLoggedIn: boolean,
     errorMessage?: string | null,
 }
 
-export const signIn = async (credentials: z.infer<typeof signInSchema>): Promise<SignInResponse> => {
+const login = async (credentials: z.infer<typeof signInSchema>): Promise<LoginResponse> => {
     try {
         const response = await AuthSignIn("app-credentials", {
             redirect: false,
@@ -35,3 +35,5 @@ export const signIn = async (credentials: z.infer<typeof signInSchema>): Promise
         }
     }
 }
+
+export default login

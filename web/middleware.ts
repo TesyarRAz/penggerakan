@@ -1,9 +1,4 @@
-import { getToken } from 'next-auth/jwt'
-import { NextFetchEvent, NextRequest, NextResponse } from 'next/server'
 import { withAuth } from "next-auth/middleware"
-import { signIn } from 'next-auth/react'
-import { getServerSession } from 'next-auth'
-import { authOptions } from './app/api/auth/[...nextauth]/route'
 
 export default withAuth(
     (req) => {

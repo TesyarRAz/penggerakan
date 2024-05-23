@@ -1,4 +1,3 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import axios from "axios";
 import { getServerSession } from "next-auth";
 import React from "react";
@@ -10,7 +9,8 @@ import { FaPlus, FaSearch } from "react-icons/fa";
 import { RiEqualizerFill } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import { IoAddCircleOutline } from "react-icons/io5";
-import BrowseLayout from "@/components/browse-layout";
+import BrowseLayout from "@/components/layouts/browse-layout";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 const CoursePage = async () => {
   const session = await getServerSession(authOptions);

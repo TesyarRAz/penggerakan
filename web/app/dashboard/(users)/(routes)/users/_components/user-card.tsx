@@ -2,7 +2,7 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import deleteUser from '../_actions/delete-user-action'
+import deleteUser from '../../../_actions/delete-user-action'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { FaTrashAlt } from 'react-icons/fa'

@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import deleteCourseAction from "../_actions/delete-course-action";
+import deleteCourse from "../_actions/delete-course-action";
 
 function CourseCard({ 
   course: {
@@ -24,7 +24,7 @@ function CourseCard({
 
     if (!confirm('Are you sure you want to delete this course?')) return
 
-    const ok = await deleteCourseAction(session, id)
+    const ok = await deleteCourse(session, id)
 
     if (ok) {
       router.refresh()

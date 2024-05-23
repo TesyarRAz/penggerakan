@@ -12,9 +12,9 @@ import { FaMoon } from 'react-icons/fa';
 import { MdOutlineWbSunny } from 'react-icons/md';
 import { z } from 'zod';
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signIn } from '../_actions/signin';
 import { useRouter, useSearchParams } from 'next/navigation';
 import LogoIpsum from '@/public/images/logoipsum-288.svg';
+import login from '@/app/auth/[[...signin]]/_actions/login-action';
 
 const LoginForm = () => {
     const { setTheme, theme } = useTheme();
@@ -32,7 +32,7 @@ const LoginForm = () => {
     const { isSubmitting, isValid } = form.formState;
 
     const onSubmit = async (values: z.infer<typeof signInSchema>) => {
-        const { isLoggedIn, errorMessage } = await signIn(values)
+        const { isLoggedIn, errorMessage } = await login(values)
 
         if (!isLoggedIn) {
             form.setError("password", {

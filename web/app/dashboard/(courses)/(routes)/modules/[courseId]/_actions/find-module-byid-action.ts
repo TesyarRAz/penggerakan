@@ -2,8 +2,8 @@ import { axios } from '@/lib/axios'
 import { Session } from 'next-auth'
 import React from 'react'
 
-const deleteModul = async (session: Session, id: string): Promise<WebResponse> => {
-    const response = await axios.delete(`/modules/${id}`, {
+const findModuleById = async (session: Session, courseId: string, moduleId: string): Promise<ModuleResponse> => {
+    const response = await axios.get(`/modules/${courseId}/${moduleId}`, {
         headers: {
             Authorization: `Bearer ${session.token.access_token}`
         }
@@ -12,4 +12,4 @@ const deleteModul = async (session: Session, id: string): Promise<WebResponse> =
     return response.data
 }
 
-export default deleteModul
+export default findModuleById
