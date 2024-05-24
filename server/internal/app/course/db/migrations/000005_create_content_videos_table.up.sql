@@ -9,4 +9,4 @@ CREATE TABLE public.content_videos (
 	CONSTRAINT content_video_pk PRIMARY KEY (id)
 );
 
-ALTER TABLE public.content_videos ADD CONSTRAINT content_video_courses_fk FOREIGN KEY (course_id) REFERENCES public.courses(id);
+ALTER TABLE public.content_videos ADD CONSTRAINT content_video_courses_fk FOREIGN KEY (course_id) REFERENCES public.courses(id) ON DELETE CASCADE ON UPDATE CASCADE;

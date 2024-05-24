@@ -1,5 +1,4 @@
 import axios from "axios";
-import { getServerSession } from "next-auth";
 import React from "react";
 import { getCourses } from "./_actions/get-courses-action";
 import { redirect } from "next/navigation";
@@ -10,10 +9,10 @@ import { RiEqualizerFill } from "react-icons/ri";
 import { Button } from "@/components/ui/button";
 import { IoAddCircleOutline } from "react-icons/io5";
 import BrowseLayout from "@/components/layouts/browse-layout";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/auth";
 
 const CoursePage = async () => {
-  const session = await getServerSession(authOptions);
+  const session = await auth()
 
   if (!session) {
     return redirect("/auth/signin?callback=/dashboard/courses");
@@ -40,6 +39,7 @@ const CoursePage = async () => {
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 mt-5">
         {courses.data.map((item) => (
           <CourseCard
+            session={session}
             key={item.id}
             course={item}
           />

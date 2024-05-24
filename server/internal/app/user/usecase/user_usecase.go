@@ -28,6 +28,7 @@ const (
 	secretRedisKey = "secret"
 	logoutRedisKey = "logout"
 	activeRedisKey = "active"
+	userRedisKey   = "user"
 )
 
 type UserUseCase struct {
@@ -143,13 +144,13 @@ func (c *UserUseCase) RefreshToken(ctx context.Context, request *shared_model.Re
 
 	if err != nil {
 		c.Log.Warnf("Failed to parse token : %+v", err)
-		return nil, err
+		return nil, errors.NewBadRequest()
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok || !token.Valid {
 		c.Log.Warn("Failed to validate token")
-		return nil, err
+		return nil, errors.NewUnauthorized()
 	}
 
 	// Validate if secret token is not black listed
@@ -260,7 +261,7 @@ func (c *UserUseCase) createRefreshToken(ctx context.Context, user *user_entity.
 		"iat":          time.Now().Unix(),
 	})
 
-	if err := c.RedisRepository.Set(ctx, fmt.Sprint(activeRedisKey, ":", secretToken), true, time.Hour*24); err != nil {
+	if err := c.RedisRepository.Set(ctx, fmt.Sprint(activeRedisKey, ":", secretToken), true, time.Hour*24, fmt.Sprint(userRedisKey, ":", user.ID)); err != nil {
 		c.Log.Warnf("Failed to set active token : %+v", err)
 		return "", errors.NewInternalServerError()
 	}

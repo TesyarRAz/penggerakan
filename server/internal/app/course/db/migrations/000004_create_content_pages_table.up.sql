@@ -8,4 +8,4 @@ CREATE TABLE public.content_pages (
 	CONSTRAINT content_blogs_pk PRIMARY KEY (id)
 );
 
-ALTER TABLE public.content_pages ADD CONSTRAINT content_pages_courses_fk FOREIGN KEY (course_id) REFERENCES public.courses(id);
+ALTER TABLE public.content_pages ADD CONSTRAINT content_pages_courses_fk FOREIGN KEY (course_id) REFERENCES public.courses(id) ON DELETE CASCADE ON UPDATE CASCADE;

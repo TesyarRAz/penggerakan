@@ -7,10 +7,10 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import NameForm from '../../_components/name-form'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import NameForm from '../../../_components/name-form'
-import createModule from '../../../_actions/create-module-action'
+import createModule from '../../_actions/create-module-action'
 
 const CreateModuleForm = ({
     session,
@@ -39,8 +39,22 @@ const CreateModuleForm = ({
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-                <NameForm control={form.control} isSubmitting={isSubmitting} />
-                <Button type="submit">Save</Button>
+                <Dialog onOpenChange={(open) => !open && router.back()} open>
+                    <DialogContent className="sm:max-w-lg">
+                        <DialogHeader>
+                            <DialogTitle>Create Module</DialogTitle>
+                            <DialogDescription>
+                                Create module here. click save when youre done
+                            </DialogDescription>
+                        </DialogHeader>
+                        <>
+                            <NameForm control={form.control} isSubmitting={isSubmitting} />
+                        </>
+                        <DialogFooter>
+                            <Button type="submit">Save</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
             </form>
         </Form>
     )

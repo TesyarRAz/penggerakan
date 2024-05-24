@@ -51,7 +51,7 @@ type LogoutUserRequest struct {
 }
 
 type FindUserRequest struct {
-	ID         string `json:"id" validate:"required,max=100"`
+	ID         string `json:"id" validate:"required,max=100,uuid"`
 	IsDetailed bool   `json:"-"`
 }
 
@@ -63,7 +63,7 @@ type CreateUserRequest struct {
 }
 
 type ParamUserRequest struct {
-	ID string `params:"id" validate:"required" name:"id"`
+	ID string `params:"id" validate:"required,uuid" name:"id"`
 }
 
 type DeleteUserRequest struct {

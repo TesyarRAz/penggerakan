@@ -7,4 +7,4 @@ CREATE TABLE public.modules (
 	CONSTRAINT modules_pk PRIMARY KEY (id)
 );
 
-ALTER TABLE public.modules ADD CONSTRAINT modules_courses_fk FOREIGN KEY (course_id) REFERENCES public.courses(id);
+ALTER TABLE public.modules ADD CONSTRAINT modules_courses_fk FOREIGN KEY (course_id) REFERENCES public.courses(id) ON DELETE CASCADE ON UPDATE CASCADE;

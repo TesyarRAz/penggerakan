@@ -1,17 +1,16 @@
 import React from "react";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 
 const FeatureLayout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
 
   if (!session || session.token.error === "RefreshAccessTokenError") {
-    return redirect("/auth/signin")
+    return redirect("/auth/signin?callback=/dashboard")
   }
 
   return (

@@ -16,21 +16,18 @@ interface User {
     roles?: Role[] | null
     permissions?: Permission[] | null
 }
-
-type _AppUser = User
-
 declare module "next-auth" {
     interface Session {
         token: Token
     }
 
-    interface User extends _AppUser {
-        token?: Token
+    interface User extends User {
+        token: Token
     }
 }
 
 declare module "next-auth/jwt" {
     interface JWT extends Token {
-        user: _AppUser
+        user: User
     }
 }

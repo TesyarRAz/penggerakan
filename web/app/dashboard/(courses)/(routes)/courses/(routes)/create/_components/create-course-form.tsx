@@ -1,25 +1,23 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import createCourse from "../../_actions/create-course-action";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import NameForm from "../../_components/name-form";
 import ImageForm from "../../_components/image-form";
 import TeacherForm from "../../_components/teacher-form";
 import { courseSchema } from "@/lib/zod";
+import { Session } from "next-auth";
 
-const CreateCourse = () => {
-    const { data: session, status } = useSession()
+const CreateCourse = ({
+    session
+}: {
+    session: Session
+}) => {
     const router = useRouter()
-
-    if (status === "unauthenticated")
-        router.push("/auth/signin?callback=/dashboard/courses/create")
 
     const form = useForm<z.infer<typeof courseSchema>>({
         resolver: zodResolver(courseSchema),
@@ -33,8 +31,6 @@ const CreateCourse = () => {
     const { isSubmitting, isValid } = form.formState;
 
     const onSubmit = async (values: z.infer<typeof courseSchema>) => {
-        if (!session)
-            return
         const ok = await createCourse(session, values)
 
         if (ok) {

@@ -54,8 +54,16 @@ func (r *RedisRepository) GetMap(ctx context.Context, key string) (map[string]st
 	return r.Redis.HGetAll(ctx, key).Result()
 }
 
-func (r *RedisRepository) Set(ctx context.Context, key string, value interface{}, expire time.Duration) error {
-	return r.Redis.Set(ctx, key, value, expire).Err()
+func (r *RedisRepository) Set(ctx context.Context, key string, value interface{}, expire time.Duration, tags ...string) error {
+	pipe := r.Redis.TxPipeline()
+	for _, tag := range tags {
+		pipe.SAdd(ctx, tag, key)
+	}
+	pipe.Set(ctx, key, value, expire)
+
+	_, err := pipe.Exec(ctx)
+
+	return err
 }
 
 func (r *RedisRepository) Get(ctx context.Context, key string) (string, error) {

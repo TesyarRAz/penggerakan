@@ -1,5 +1,4 @@
 import { courseSchema } from '@/lib/zod'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -11,15 +10,17 @@ import ImageForm from '../../_components/image-form'
 import { Button } from '@/components/ui/button'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Session } from 'next-auth'
 
 interface EditCourseFormProps {
+  session: Session
   course: CourseResponse
 }
 
 const EditCourseForm = ({
+  session,
   course,
 }: EditCourseFormProps) => {
-  const { data: session, status } = useSession()
   const router = useRouter()
 
   if (status === "unauthenticated")

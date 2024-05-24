@@ -7,7 +7,7 @@ import (
 )
 
 type ParamModuleRequest struct {
-	CourseID string `params:"course_id" validate:"required" name:"course_id"`
+	CourseID string `params:"course_id" validate:"required,uuid" name:"course_id"`
 }
 
 type ListModuleRequest struct {
@@ -32,18 +32,18 @@ type CreateModuleRequest struct {
 type UpdateModuleRequest struct {
 	ParamModuleRequest
 
-	ID   string `params:"id" validate:"required"`
+	ID   string `params:"id" validate:"required,uuid"`
 	Name string `json:"name" validate:"required,max=100" name:"name"`
 }
 
 type DeleteModuleRequest struct {
 	ParamModuleRequest
 
-	ID string `json:"id" validate:"required" name:"id"`
+	ID string `json:"id" validate:"required,uuid" name:"id"`
 }
 
 type FindModuleRequest struct {
 	ParamModuleRequest
 
-	ID string `json:"id" validate:"required" name:"id"`
+	ID string `json:"id" validate:"required,uuid" name:"id"`
 }

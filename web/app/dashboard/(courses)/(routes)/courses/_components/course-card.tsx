@@ -1,27 +1,27 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import deleteCourse from "../_actions/delete-course-action";
+import { auth } from "@/auth";
+import { Session } from "next-auth";
 
-function CourseCard({ 
+const CourseCard = ({ 
+  session,
   course: {
     id,
     name,
     image,
   }
  }: {
+  session: Session,
   course: CourseResponse
- }) {
-  const { data: session } = useSession()
+ }) => {
   const router = useRouter()
 
   const handleDelete = async () => {
-    if (!session) return
-
     if (!confirm('Are you sure you want to delete this course?')) return
 
     const ok = await deleteCourse(session, id)

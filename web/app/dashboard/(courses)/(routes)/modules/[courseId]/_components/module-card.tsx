@@ -1,35 +1,35 @@
 "use client"
 import { Button } from "@/components/ui/button";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
-import deleteModul from "../_actions/delete-module-action";
+import { Session } from "next-auth";
+import deleteModule from "../_actions/delete-module-action";
 
-function ModuleCard({ 
-    module: {
-        id,
-        name,
-        created_at,
-    }
- }: {
-    module: ModuleResponse
- }) {
-  const { data: session } = useSession()
+function ModuleCard({
+  session,
+  course,
+  module: {
+    id,
+    name,
+    created_at,
+  }
+}: {
+  session: Session,
+  course: CourseResponse,
+  module: ModuleResponse
+}) {
   const router = useRouter()
 
   const handleDelete = async () => {
-    if (!session) return
+    if (!confirm('Are you sure you want to delete this module?')) return
 
-    if (!confirm('Are you sure you want to delete this course?')) return
-
-    const ok = await deleteModul(session, id)
+    const ok = await deleteModule(session, course.id, id)
 
     if (ok) {
       router.refresh()
     } else {
-      alert('Failed to delete course')
+      alert('Failed to delete module')
     }
   }
 

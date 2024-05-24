@@ -1,18 +1,18 @@
 "use client"
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import deleteUser from '../../../_actions/delete-user-action'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
 import { FaTrashAlt } from 'react-icons/fa'
 import { TbListDetails } from 'react-icons/tb'
+import { Session } from 'next-auth'
 
 interface UserCardProps {
+  session: Session
   user: UserResponse
 }
 
 const UserCard = ({
+  session,
   user: {
     id,
     name,
@@ -20,7 +20,6 @@ const UserCard = ({
     profile_image,
   }
 }: UserCardProps) => {
-  const { data: session } = useSession()
   const router = useRouter()
 
   const handleDelete = async () => {

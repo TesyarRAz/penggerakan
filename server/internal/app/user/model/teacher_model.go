@@ -13,11 +13,11 @@ type TeacherResponse struct {
 }
 
 type ParamTeacherRequest struct {
-	ID string `params:"id" validate:"required" name:"id"`
+	ID string `params:"id" validate:"required,uuid" name:"id"`
 }
 
 type CreateTeacherRequest struct {
-	UserID       string `json:"user_id" validate:"required" name:"user_id"`
+	UserID       string `json:"user_id" validate:"required,uuid" name:"user_id"`
 	Name         string `json:"name" validate:"required" name:"name"`
 	ProfileImage string `json:"profile_image" name:"profile_image"`
 }
@@ -42,5 +42,5 @@ type FindTeachersRequest struct {
 }
 
 type FindTeacherByUserIdRequest struct {
-	UserID string `params:"user_id" validate:"required" name:"user_id"`
+	UserID string `params:"user_id" validate:"required,uuid" name:"user_id"`
 }

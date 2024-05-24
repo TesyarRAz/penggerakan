@@ -29,10 +29,7 @@ const login = async (credentials: z.infer<typeof signInSchema>): Promise<LoginRe
                 errorMessage: "Email atau password salah",
             }
         }
-        return {
-            isLoggedIn: false,
-            errorMessage: `Terjadi kesalahan saat login. Silahkan coba lagi`,
-        }
+        throw error
     }
 }
 

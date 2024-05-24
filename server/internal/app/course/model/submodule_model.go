@@ -8,7 +8,7 @@ import (
 )
 
 type ParamSubModuleRequest struct {
-	ModuleID string `params:"module_id" validate:"required" name:"module_id"`
+	ModuleID string `params:"module_id" validate:"required,uuid" name:"module_id"`
 }
 
 type ListSubModuleRequest struct {
@@ -35,7 +35,7 @@ type CreateSubModuleRequest struct {
 type UpdateSubModuleRequest struct {
 	ParamSubModuleRequest
 
-	ID        string          `json:"id" validate:"required" name:"id"`
+	ID        string          `json:"id" validate:"required,uuid" name:"id"`
 	Name      string          `json:"name" validate:"required,max=100" name:"name"`
 	Structure json.RawMessage `json:"structure" validate:"required,json" name:"structure"`
 }
@@ -43,11 +43,11 @@ type UpdateSubModuleRequest struct {
 type DeleteSubModuleRequest struct {
 	ParamSubModuleRequest
 
-	ID string `json:"id" validate:"required" name:"id"`
+	ID string `json:"id" validate:"required,uuid" name:"id"`
 }
 
 type FindSubModuleRequest struct {
 	ParamSubModuleRequest
 
-	ID string `json:"id" validate:"required" name:"id"`
+	ID string `json:"id" validate:"required,uuid" name:"id"`
 }

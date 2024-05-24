@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Session } from "next-auth";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -10,14 +10,15 @@ import { FaMoon } from "react-icons/fa";
 import { IoIosSunny } from "react-icons/io";
 import { Button } from "./ui/button";
 
-interface SidebarRightProps extends React.HTMLAttributes<HTMLDivElement> {}
+interface SidebarRightProps extends React.HTMLAttributes<HTMLDivElement> {
+  session: Session
+}
 
 const SidebarRight = ({
+  session,
   className,
   ...props
 }: SidebarRightProps) => {
-  const { data: session, status } = useSession();
-
   const { setTheme, theme } = useTheme();
 
   return (

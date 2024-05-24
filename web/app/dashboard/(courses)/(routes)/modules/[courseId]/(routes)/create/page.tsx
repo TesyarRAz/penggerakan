@@ -1,27 +1,29 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import getCourseById from '@/app/dashboard/(courses)/_actions/get-course-byid-action'
-import { getServerSession } from 'next-auth'
+import { auth } from '@/auth'
+import { notFound, redirect } from 'next/navigation'
 import React from 'react'
 import CreateModuleForm from './_components/create-module-form'
-import { redirect } from 'next/navigation'
 
 const CreateModulePage = async ({
-  params
-}: {
-  params: {
-    courseId: string
-  }
-}) => {
-  const session = await getServerSession(authOptions)
-
-  if (!session) {
-    return redirect('/auth/signin')
-  }
-
-  const course = await getCourseById(session, params.courseId)
-
+    params
+  }: {
+    params: {
+      courseId: string
+    }
+  }) => {
+    const session = await auth()
+  
+    if (!session) {
+      return redirect(`/auth/signin?callback=/dashboard/modules/${params.courseId}/create`)
+    }
+  
+    const course = await getCourseById(session, params.courseId)
+    if (!course) {
+      return notFound()
+    }
+  
   return (
-    <CreateModuleForm course={course} />
+    <CreateModuleForm session={session} course={course} />
   )
 }
 

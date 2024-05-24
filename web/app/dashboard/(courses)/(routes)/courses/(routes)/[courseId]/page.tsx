@@ -1,8 +1,7 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
-import { getServerSession } from 'next-auth'
 import React from 'react'
 import getCourseById from '../../../../_actions/get-course-byid-action'
 import { redirect } from 'next/navigation'
+import { auth } from '@/auth'
 
 const EditCoursePage = async ({
   params
@@ -11,10 +10,10 @@ const EditCoursePage = async ({
     courseId: string
   }
 }) => {
-  const session = await getServerSession(authOptions)
+  const session = await auth()
 
   if (!session) {
-    return redirect('/auth/signin')
+    return redirect(`/auth/signin?callback=/dashboard/courses/${params.courseId}`)
   }
 
   const course = await getCourseById(session, params.courseId)

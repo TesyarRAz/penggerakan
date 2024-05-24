@@ -37,6 +37,12 @@ interface LoginResponse {
     token: Token
 }
 
+interface RefreshTokenResponse {
+    access_token: string
+    access_token_exp: number
+    refresh_token: string
+}
+
 interface CourseResponse {
     id: string
     teacher_id: string
