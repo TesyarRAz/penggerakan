@@ -4,15 +4,13 @@ import { useSession } from 'next-auth/react'
 import React from 'react'
 
 const RootTemplate = async ({
-    children
+  children
 }: {
-    children: React.ReactNode
+  children: React.ReactNode
 }) => {
-    const session = await auth()
-
   return (
-    <SessionProvider session={session}>
-        {children}
+    <SessionProvider>
+      {children}
     </SessionProvider>
   )
 }

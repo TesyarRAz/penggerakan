@@ -1,20 +1,16 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import React from 'react'
-import { Control } from 'react-hook-form'
+import {Control, useFormContext, UseFormReturn} from 'react-hook-form'
 
-interface ImageFormProps {
-    control: Control<any>,
-    isSubmitting: boolean
-}
+const ImageForm = () => {
+    const form = useFormContext()
 
-const ImageForm = ({
-    control,
-    isSubmitting
-}: ImageFormProps) => {
+    const { isSubmitting } = form.formState
+
     return (
         <FormField
-            control={control}
+            control={form.control}
             name="image"
             render={({ field }) => (
                 <FormItem>

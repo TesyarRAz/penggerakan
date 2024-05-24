@@ -18,18 +18,17 @@ const login = async (credentials: z.infer<typeof signInSchema>): Promise<LoginRe
             ...credentials,
         })
 
+        console.log(response)
+
         return {
             isLoggedIn: response?.ok ?? false,
             errorMessage: response?.error,
         }
     } catch (error: any) {
-        if (error.code == "app-credentials") {
-            return {
-                isLoggedIn: false,
-                errorMessage: "Email atau password salah",
-            }
+        return {
+            isLoggedIn: false,
+            errorMessage: error?.message ?? "Internal server error",
         }
-        throw error
     }
 }
 

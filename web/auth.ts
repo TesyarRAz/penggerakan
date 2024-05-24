@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthConfig, User } from "next-auth"
+import NextAuth, { AuthError, NextAuthConfig, User } from "next-auth"
 import { JWT } from "next-auth/jwt"
 import { axios } from "./lib/axios"
 import credentials from "next-auth/providers/credentials"
@@ -10,14 +10,9 @@ const refreshToken = async (token: JWT): Promise<JWT> => {
             refresh_token: token.refresh_token,
         })
 
-        if (response.status !== 200) {
-            return {
-                ...token,
-                error: "RefreshAccessTokenError"
-            }
-        }
-
         const newToken: RefreshTokenResponse = response.data
+
+        delete token.error
 
         return {
             ...token,
@@ -40,7 +35,7 @@ const authOptions: NextAuthConfig = {
                 email: { label: "Email", type: "email", },
                 password: { label: "Password", type: "password" },
             },
-            authorize: async (credentials): Promise<User> => {
+            authorize: async (credentials): Promise<User | null> => {
                 const request = await signInSchema.parseAsync(credentials)
 
                 try {
@@ -54,10 +49,10 @@ const authOptions: NextAuthConfig = {
                     }
                 } catch (error: any) {
                     if (error?.response?.status === 401) {
-                        throw new Error("Invalid credentials")
+                        throw new AuthError("Invalid credentials")
                     }
 
-                    throw new Error("Internal server error")
+                    throw new AuthError("Internal server error")
                 }
             },
         }),

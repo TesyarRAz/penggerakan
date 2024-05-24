@@ -1,12 +1,17 @@
 
 import React from 'react'
-import CreateCourse from './_components/create-course-form'
+import CreateCourseForm from './_components/create-course-form'
+import { auth } from '@/auth'
 
-const CreateCoursePage = () => {
+const CreateCoursePage = async () => {
+    const session = await auth()
+
+    if (!session) return null
+
     return (
         <div>
             <h2>Create Course Page</h2>
-            <CreateCourse />
+            <CreateCourseForm session={session}/>
         </div>
     )
 }

@@ -17,9 +17,9 @@ interface PageResponse<T> {
 }
 
 interface PageRequest {
-    cursor: string
-    per_page: number
-    search: string
+    cursor?: string
+    per_page?: number
+    search?: string
 }
 
 interface Role {
@@ -48,7 +48,7 @@ interface CourseResponse {
     teacher_id: string
     name: string
     image: string
-    created_at: string
+    created_at?: string
 }
 
 interface CreateCourseRequest {
@@ -69,14 +69,14 @@ interface UserResponse {
     email: string
     roles: Role[]
     permissions: Permission[]
-    created_at: string
+    created_at?: string
 }
 
 interface ModuleResponse {
     id: string
     course_id: string
     name: string
-    created_at: string
+    created_at?: string
 }
 
 interface CreateModuleRequest {
@@ -92,5 +92,25 @@ interface SubModuleResponse {
     module_id: string
     name: string
     structure: Record<string, any>
-    created_at: string
+    created_at?: string
+}
+
+interface TeacherResponse {
+    id: string
+    user_id: string
+    name: string
+    email: string
+    profile_image: string
+    created_at?: string
+}
+
+interface CreateTeacherRequest {
+    user_id: string
+    name: string
+    profile_image: string
+}
+
+interface EditTeacherRequest {
+    name: string
+    profile_image: string
 }

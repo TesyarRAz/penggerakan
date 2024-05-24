@@ -1,6 +1,7 @@
+"use server"
 import React from "react";
 import { redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth";
 
 const FeatureLayout = async ({
   children,
@@ -9,7 +10,7 @@ const FeatureLayout = async ({
 }>) => {
   const session = await auth()
 
-  if (!session || session.token.error === "RefreshAccessTokenError") {
+  if (!session || session?.token?.error === "RefreshAccessTokenError") {
     return redirect("/auth/signin?callback=/dashboard")
   }
 

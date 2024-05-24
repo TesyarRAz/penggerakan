@@ -1,25 +1,26 @@
 "use client"
 import { useRouter } from 'next/navigation'
 import React from 'react'
-import deleteUser from '../_actions/delete-user-action'
+import deleteUser from '../../users/_actions/delete-user-action'
 import { FaTrashAlt } from 'react-icons/fa'
 import { TbListDetails } from 'react-icons/tb'
 import { Session } from 'next-auth'
+import deleteTeacher from '../_actions/delete-teacher-action'
 
-interface UserCardProps {
+interface TeacherCardProps {
   session: Session
-  user: UserResponse
+  teacher: TeacherResponse
 }
 
-const UserCard = ({
+const TeacherCard = ({
   session,
-  user: {
+  teacher: {
     id,
+    user_id,
     name,
-    email,
     profile_image,
   }
-}: UserCardProps) => {
+}: TeacherCardProps) => {
   const router = useRouter()
 
   const handleDelete = async () => {
@@ -27,7 +28,7 @@ const UserCard = ({
 
     if (!confirm('Are you sure you want to delete this course?')) return
 
-    const ok = await deleteUser(session, id)
+    const ok = await deleteTeacher(session, id)
 
     if (ok) {
       router.refresh()
@@ -52,7 +53,10 @@ const UserCard = ({
           {name.toLocaleUpperCase()}
         </h3>
         <p className="text-gray-600 text-sm  dark:text-white">
-          Email : {email}
+          ID : <span className="text-xs">{id}</span>
+        </p>
+        <p className="text-gray-600 text-sm  dark:text-white">
+          UserID : <span className="text-xs">{user_id}</span>
         </p>
         <div className="flex items-center justify-between mt-3">
           <button
@@ -79,4 +83,4 @@ const UserCard = ({
   );
 }
 
-export default UserCard
+export default TeacherCard

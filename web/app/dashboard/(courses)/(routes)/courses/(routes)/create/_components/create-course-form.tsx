@@ -9,10 +9,19 @@ import { useRouter } from "next/navigation";
 import NameForm from "../../_components/name-form";
 import ImageForm from "../../_components/image-form";
 import TeacherForm from "../../_components/teacher-form";
-import { courseSchema } from "@/lib/zod";
 import { Session } from "next-auth";
 
-const CreateCourse = ({
+const courseSchema = z.object({
+    teacher_id: z.string().uuid(),
+    name: z.string().min(2, {
+        message: "Name is too short",
+    }),
+    image: z.string().url({
+        message: "Invalid URL",
+    }),
+})
+
+const CreateCourseForm = ({
     session
 }: {
     session: Session
@@ -46,10 +55,10 @@ const CreateCourse = ({
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-                <TeacherForm control={form.control} isSubmitting={isSubmitting} />
-                <NameForm control={form.control} isSubmitting={isSubmitting} />
-                <ImageForm control={form.control} isSubmitting={isSubmitting} />
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 mt-5">
+                <TeacherForm session={session} />
+                <NameForm />
+                <ImageForm />
                 <Button type="submit" disabled={isSubmitting}>
                     Simpan
                 </Button>
@@ -58,4 +67,4 @@ const CreateCourse = ({
     );
 };
 
-export default CreateCourse;
+export default CreateCourseForm;

@@ -2,8 +2,8 @@ import { axios } from '@/lib/axios'
 import { Session } from 'next-auth'
 import React from 'react'
 
-const findModuleById = async (session: Session, courseId: string, moduleId: string): Promise<ModuleResponse> => {
-    const response = await axios.get(`/modules/${courseId}/${moduleId}`, {
+const editModule = async (session: Session, moduleId: string, request: EditModuleRequest): Promise<ModuleResponse> => {
+    const response = await axios.put(`/modules/${moduleId}`, request, {
         headers: {
             Authorization: `Bearer ${session.token.access_token}`
         }
@@ -12,4 +12,4 @@ const findModuleById = async (session: Session, courseId: string, moduleId: stri
     return response.data
 }
 
-export default findModuleById
+export default editModule

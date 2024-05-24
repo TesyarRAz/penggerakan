@@ -1,15 +1,14 @@
 "use client"
-import { Form } from '@/components/ui/form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Session } from 'next-auth'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import editModule from '../_actions/edit-module-action'
 import NameForm from '../../../_components/name-form'
-import createModule from '../../../_actions/create-module-action'
+import { Button } from '@/components/ui/button'
+import {Form} from "@/components/ui/form";
 
 const moduleSchema = z.object({
     name: z.string().min(2, {
@@ -17,27 +16,29 @@ const moduleSchema = z.object({
     }),
 })
 
-const CreateModuleForm = ({
+const EditModuleForm = ({
     session,
-    course
+    course,
+    mod,
 }: {
     session: Session,
-    course: CourseResponse
+    course: CourseResponse,
+    mod: ModuleResponse,
 }) => {
     const router = useRouter()
     const form = useForm<z.infer<typeof moduleSchema>>({
         resolver: zodResolver(moduleSchema),
         defaultValues: {
-            name: "",
+            name: mod.name,
         },
     });
 
     const { isSubmitting } = form.formState
 
     const onSubmit = async (values: z.infer<typeof moduleSchema>) => {
-        const response = await createModule(session, course.id, values)
+        const response = await editModule(session, mod.id, values)
 
-        alert('Berhasil membuat module')
+        alert('Berhasil mengedit module')
         router.push(`/dashboard/modules/${course.id}`)
     }
 
@@ -51,4 +52,4 @@ const CreateModuleForm = ({
     )
 }
 
-export default CreateModuleForm
+export default EditModuleForm

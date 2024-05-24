@@ -42,8 +42,8 @@ const LoginForm = () => {
 
             return
         }
-        
-        router.push(searchParams.get("callback") || "/")
+
+        // router.push(searchParams.get("callback") || "/")
     }
 
     return (
@@ -90,7 +90,7 @@ const LoginForm = () => {
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <FormMessage  />
+                                            <FormMessage />
                                         </FormItem>
                                     )} />
                                 <FormField

@@ -1,20 +1,16 @@
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import React from 'react'
-import { Control } from 'react-hook-form'
+import {Control, useFormContext, UseFormReturn} from 'react-hook-form'
 
-interface NameFormProps {
-    control: Control<any>,
-    isSubmitting: boolean
-}
+const NameForm = () => {
+    const form = useFormContext()
 
-const NameForm = ({
-    control,
-    isSubmitting
-}: NameFormProps) => {
+    const { isSubmitting } = form.formState
+
     return (
         <FormField
-            control={control}
+            control={form.control}
             name="name"
             render={({ field }) => (
                 <FormItem>

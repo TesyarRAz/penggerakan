@@ -69,13 +69,19 @@ const SidebarLeft = ({
         {/* sidebar item*/}
         <ul className="flex-1 px-2 my-3">
           <MenuItem
-            pathActive={["/dashboard"]}
+            path={["/dashboard"]}
             href="/dashboard"
             title="Dashboard"
             icon={MdDashboard}
             expanded={expanded}
           />
           <MenuItem
+            path={[
+              '/dashboard/courses',
+              '/dashboard/modules',
+              '/dashboard/submodules',
+            ]}
+            wilcard={true}
             href="/dashboard/courses"
             title="Course"
             icon={FaBook}
@@ -119,7 +125,8 @@ const SidebarLeft = ({
 export default SidebarLeft;
 
 interface MenuItemProps {
-  pathActive?: string[];
+  wilcard?: boolean
+  path?: string[];
   href: string;
   title: string;
   icon: IconType;
@@ -128,19 +135,21 @@ interface MenuItemProps {
   permissions?: string[];
 }
 
-const MenuItem = ({ pathActive, href, title, icon, expanded, roles, permissions }: MenuItemProps) => {
+const MenuItem = ({ wilcard, path, href, title, icon, expanded, roles, permissions }: MenuItemProps) => {
   const pathname = usePathname();
 
-  if (pathActive == null) {
-    pathActive = [href];
+  if (path == null) {
+    path = [href];
   }
+
+  const active = wilcard ? path.some((p) => pathname.includes(p)) : path.includes(pathname);
 
   return (
     <li
       key={title}
       className={cn(
         "my-1 font-medium rounded-md cursor-pointer transition-colors group",
-        pathActive.includes(pathname)
+        active
           ? " bg-gradient-to-tr from-teal-200 to-teal-300 rounded-lg transition-colors duration-500"
           : " hover:bg-gradient-to-br from-blue-200 to-blue-300 hover:text-blue-700"
       )}

@@ -1,4 +1,3 @@
-import { courseSchema } from '@/lib/zod'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
@@ -12,6 +11,15 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Session } from 'next-auth'
 
+
+const courseSchema = z.object({
+  name: z.string().min(2, {
+      message: "Name is too short",
+  }),
+  image: z.string().url({
+      message: "Invalid URL",
+  }),
+})
 interface EditCourseFormProps {
   session: Session
   course: CourseResponse
@@ -23,20 +31,17 @@ const EditCourseForm = ({
 }: EditCourseFormProps) => {
   const router = useRouter()
 
-  if (status === "unauthenticated")
-    router.push(`/auth/signin?callback=/dashboard/courses/${course.id}`)
-
   const form = useForm<z.infer<typeof courseSchema>>({
     resolver: zodResolver(courseSchema),
     defaultValues: course,
   });
 
-  const { isSubmitting, isValid } = form.formState;
+  const { isSubmitting } = form.formState;
 
   const onSubmit = async (values: z.infer<typeof courseSchema>) => {
     if (!session)
       return
-    const ok = await editCourse(session, values)
+    const ok = await editCourse(session, course.id, values)
 
     if (ok) {
       alert('Berhasil membuat course')
@@ -52,9 +57,9 @@ const EditCourseForm = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-        <TeacherForm control={form.control} isSubmitting={isSubmitting} />
-        <NameForm control={form.control} isSubmitting={isSubmitting} />
-        <ImageForm control={form.control} isSubmitting={isSubmitting} />
+        <TeacherForm session={session} form={form} isSubmitting={isSubmitting} />
+        <NameForm form={form} isSubmitting={isSubmitting} />
+        <ImageForm form={form} isSubmitting={isSubmitting}/>
         <Button type="submit" disabled={isSubmitting}>
           Simpan
         </Button>
