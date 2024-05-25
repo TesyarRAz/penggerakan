@@ -9,7 +9,7 @@ interface WebResponse {
 }
 
 interface PageResponse<T> {
-    data : T[]
+    data: T[]
     paging: {
         prev_cursor: string
         next_cursor: string
@@ -113,4 +113,12 @@ interface CreateTeacherRequest {
 interface EditTeacherRequest {
     name: string
     profile_image: string
+}
+
+interface SubModuleStructure {
+    resource_id?: string
+    resource_type?: string
+    label?: string
+    value?: string
+    children?: SubModuleStructure[]
 }

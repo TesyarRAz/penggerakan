@@ -4,7 +4,7 @@ import { auth } from '@/auth'
 import getModuleById from '../../_actions/get-module-byid-action'
 import { redirect } from 'next/navigation'
 import getCourseById from '@/app/dashboard/(courses)/_actions/get-course-byid-action'
-import SubmoduleForm
+import SubModuleForm
   from "@/app/dashboard/(courses)/(routes)/modules/[courseId]/(routes)/[moduleId]/_components/submodule-form";
 
 const DetailModulePage = async ({
@@ -32,7 +32,7 @@ const DetailModulePage = async ({
       <EditModuleForm session={session} course={course} mod={mod}  />
 
       <div className="mt-5">
-        <SubmoduleForm session={session} course={course} mod={mod} />
+        <SubModuleForm session={session} course={course} mod={mod} />
       </div>
     </div>
   )
