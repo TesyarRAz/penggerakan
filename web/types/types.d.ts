@@ -91,8 +91,26 @@ interface SubModuleResponse {
     id: string
     module_id: string
     name: string
-    structure: Record<string, any>
+    structure?: SubModuleStructure[]
     created_at?: string
+}
+
+interface CreateSubModuleRequest {
+    name: string
+    structure: SubModuleStructure[]
+}
+
+interface EditSubModuleRequest {
+    name: string
+    structure: SubModuleStructure[]
+}
+
+interface SubModuleStructure {
+    resource_id?: string
+    resource_type?: string
+    label?: string
+    value?: string
+    children?: SubModuleStructure[]
 }
 
 interface TeacherResponse {
@@ -113,12 +131,4 @@ interface CreateTeacherRequest {
 interface EditTeacherRequest {
     name: string
     profile_image: string
-}
-
-interface SubModuleStructure {
-    resource_id?: string
-    resource_type?: string
-    label?: string
-    value?: string
-    children?: SubModuleStructure[]
 }

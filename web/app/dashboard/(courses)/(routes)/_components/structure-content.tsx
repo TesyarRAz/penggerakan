@@ -18,16 +18,15 @@ const ListItem = ({
     return (
         <Collapsible open={open} onOpenChange={setOpen}>
             <div className="ml-2" {...props}>
-                <div className="flex justify-between">
-                    <Link href={url}>{structure.label}</Link>
-                    <div>
-                        <CollapsibleTrigger asChild>
-                            <Button variant="ghost">
-                                <FaSortUp className={cn("h-4 w-4", open ? "hidden" : "")} />
-                                <FaSortDown className={cn("h-4 w-4", !open ? "hidden" : "")} />
-                            </Button>
-                        </CollapsibleTrigger>
-                    </div>
+                <div className="flex items-center">
+
+                    <CollapsibleTrigger asChild>
+                        <Button variant="ghost" className="mr-3">
+                            <FaSortUp className={cn("h-4 w-4", open ? "hidden" : "")} />
+                            <FaSortDown className={cn("h-4 w-4", !open ? "hidden" : "")} />
+                        </Button>
+                    </CollapsibleTrigger>
+                    <Link href={url} target="_blank">{structure.label}</Link>
                 </div>
 
                 <div className="mb-3">

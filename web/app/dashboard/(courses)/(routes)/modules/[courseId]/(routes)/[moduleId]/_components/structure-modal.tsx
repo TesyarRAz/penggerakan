@@ -1,5 +1,5 @@
 "use client"
-import React, { Component, FunctionComponent, useState } from "react";
+import React, { Component, FunctionComponent, useEffect, useState } from "react";
 import {
     Dialog,
     DialogContent,
@@ -51,8 +51,13 @@ const StructureModal = ({
     structure?: SubModuleStructure | null,
     onSubmit: (label: string, value: string) => void
 }) => {
-    const [label, setLabel] = useState("")
+    const [label, setLabel] = useState(structure?.label ?? "")
     const [newValue, setNewValue] = useState(structure?.value ?? "")
+
+    useEffect(() => {
+        setLabel(structure?.label ?? "")
+        setNewValue(structure?.value ?? "")
+    }, [structure])
 
     const handleSubmit = () => {
         onSubmit(label, newValue)

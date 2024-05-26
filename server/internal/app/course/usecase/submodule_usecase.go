@@ -129,6 +129,7 @@ func (c *SubModuleUseCase) Update(ctx context.Context, request *course_model.Upd
 	}
 
 	entity.Name = request.Name
+	entity.Structure = types.JSONText(request.Structure)
 	if err := c.SubModuleRepository.Update(tx, &entity); err != nil {
 		c.Log.Warnf("Failed to update submodule : %+v", err)
 		return nil, errors.NewInternalServerError()

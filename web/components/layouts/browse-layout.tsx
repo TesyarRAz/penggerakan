@@ -17,7 +17,7 @@ const BrowseLayout = ({
   children: React.ReactNode
 }) => {
   return (
-    <div className="flex-auto flex-col">
+    <div className="flex-auto flex-col mt-3">
       <div className="flex justify-between">
         <h2 className="font-sans font-bold text-3xl ml-5 dark:text-white">
           {title}

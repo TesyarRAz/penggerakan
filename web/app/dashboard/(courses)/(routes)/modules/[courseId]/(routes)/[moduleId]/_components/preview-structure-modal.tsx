@@ -24,7 +24,7 @@ const PreviewStructureModal = ({
 }) => {
     return (
         <Dialog {...props}>
-            <DialogContent>
+            <DialogContent className="min-w-[50%]">
                 <DialogHeader>
                     <DialogTitle>Lihat Structure</DialogTitle>
                     <DialogDescription>
